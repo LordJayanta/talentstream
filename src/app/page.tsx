@@ -1,65 +1,110 @@
-import Image from "next/image";
+import { QuickFilteredButton } from "@/components/core/quick-filtered-button";
+import Header from "@/components/core/header";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { Bot, MapPin, Search, SlidersHorizontal } from "lucide-react";
+import JobFeed from "@/components/job-feed";
+import CheckBoxMark from "@/components/core/CheckBoxMark";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+
+
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div>
+      <Header />
+      {/* Search */}
+      <section className="py-8">
+        <div className="max-w-4xl mx-auto flex flex-col gap-4">
+          <div className="pb-2">
+            <h3 className="text-accent-foreground text-center text-5xl font-bold">Find Your Next Great Match</h3>
+          </div>
+
+          <ButtonGroup className="p-2">
+            <InputGroup className="h-13 w-86">
+              <InputGroupInput placeholder="Search..." />
+              <InputGroupAddon>
+                <Search />
+              </InputGroupAddon>
+            </InputGroup>
+            <InputGroup className="h-13 w-86">
+              <InputGroupInput placeholder="Search..." />
+              <InputGroupAddon>
+                <MapPin />
+              </InputGroupAddon>
+            </InputGroup>
+            <InputGroupButton className="h-13 px-8 py-3 bg-primary hover:bg-primary/80 text-primary-foreground hover:text-primary-foreground border border-primary">Search</InputGroupButton>
+            {/* <Button className="h-13 px-8 py-3 border border-primary">Search</Button> */}
+          </ButtonGroup>
+
+          <div className="flex flex-wrap gap-2 items-center justify-center">
+            <QuickFilteredButton label={'Remote Only'} />
+            <QuickFilteredButton label={'Engineering'} />
+            <QuickFilteredButton label={'Add Filter'} type={'add'} />
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Content */}
+      <section className="py-6 grid grid-cols-4 gap-6 bg-accent p-6 border-t">
+
+        <aside className="col-span-1 space-y-6">
+          {/* Filter Card */}
+          <Card className='rounded-md'>
+            <CardHeader className="flex gap-2 items-center">
+              <SlidersHorizontal size={24} className="" />
+              <CardTitle className="text-lg font-bold">Filter</CardTitle>
+            </CardHeader>
+            <Separator />
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <h5 className="font-medium text-xs text-accent-foreground/70">Job Type</h5>
+                <div className="space-y-2">
+                  <CheckBoxMark label="Full-time" />
+                  <CheckBoxMark label="Part-time" />
+                  <CheckBoxMark label="Remote" />
+                </div>
+              </div>
+              <Separator />
+              <div className="space-y-2">
+                <h5 className="font-medium text-xs text-accent-foreground/70">Salary Range</h5>
+                <div className="">
+                  <ButtonGroup>
+                    <Input type="number" placeholder="Min" />
+                    <Input type="number" placeholder="Max" />
+                  </ButtonGroup>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Promo Card */}
+          <Card className="rounded-md bg-card-foreground">
+            <CardHeader className="flex gap-2 items-center">
+              <Bot size={24} className="text-accent" />
+              <CardTitle className="text-lg font-bold text-accent ">Auto-Apply Active</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-accent">Let AI apply to jobs that are a 90%+ match for your profile automatically.</p>
+            </CardContent>
+            <CardFooter>
+              <Button variant={'secondary'} className={'w-full px-4 py-2'}>Manage Settings</Button>
+            </CardFooter>
+          </Card>
+        </aside>
+
+        <div className="col-span-3">
+          <JobFeed />
         </div>
-      </main>
+      </section>
     </div>
   );
 }

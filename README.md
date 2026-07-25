@@ -1,3 +1,13 @@
+# Update 
+
+start design for home page.
+create header components.
+install lecide-react icons
+install shadcn components c
+
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
