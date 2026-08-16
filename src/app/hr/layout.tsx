@@ -36,7 +36,7 @@ export default function RootLayout({
           <div className="col-span-2">
             <HRSidebar />
           </div>
-          <div className='relative col-span-10'>
+          <div className='relative col-span-10 bg-accent'>
             {children}
           </div>
         </div>

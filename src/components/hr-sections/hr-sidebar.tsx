@@ -50,7 +50,7 @@ export default function HRSidebar() {
   console.log("pathname : ", pathname)
 
   return (
-    <aside className='h-screen bg-accent border-r border-accent-foreground/25 p-5 space-y-8'>
+    <aside className='h-screen border-r border-accent-foreground/25 p-5 space-y-8'>
       <div className="">
         <Link href="/" className='text-primary font-bold text-2xl'>TalentStream</Link>
       </div>

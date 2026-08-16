@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/input-group"
 import { Bot, MapPin, Search, SlidersHorizontal } from "lucide-react";
 import JobFeed from "@/components/job-feed";
-import CheckBoxMark from "@/components/core/CheckBoxMark";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import FieldCheckBox from "@/components/core/field-check-box";
 
 
 
@@ -68,9 +68,9 @@ export default function Home() {
               <div className="space-y-2">
                 <h5 className="font-medium text-xs text-accent-foreground/70">Job Type</h5>
                 <div className="space-y-2">
-                  <CheckBoxMark label="Full-time" />
-                  <CheckBoxMark label="Part-time" />
-                  <CheckBoxMark label="Remote" />
+                  <FieldCheckBox label="Full-time" />
+                  <FieldCheckBox label="Part-time" />
+                  <FieldCheckBox label="Remote" />
                 </div>
               </div>
               <Separator />
