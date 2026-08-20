@@ -10,23 +10,25 @@ interface Props {
   label?: string;
   placeholder?: string;
   className?: string;
+  options: string[];
+  setOptions: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-export default function FieldOptionInput({ label, placeholder, className }: Props) {
+export default function FieldOptionInput({ label, placeholder, className, options, setOptions }: Props) {
   const id = useId();
-  const [skills, setSkills] = useState<string[]>(['React.js', 'TypeScript']);
+  // const [skills, setSkills] = useState<string[]>(['React.js', 'TypeScript']);
   const [value, setValue] = useState('')
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === 'Enter' || e.key === ',') && value.trim()) {
       e.preventDefault();
       const newSkill = value.trim();
-      if(!skills.includes(newSkill)){
-        setSkills([...skills, newSkill]);
+      if(!options.includes(newSkill)){
+        setOptions([...options, newSkill]);
       }
       setValue('');
     } else if ((e.key === 'Backspace' || e.key === 'Delete') && !value.trim()) {
-      setSkills(skills.slice(0, -1));
+      setOptions(options.slice(0, -1));
     }
   }
 
@@ -34,12 +36,12 @@ export default function FieldOptionInput({ label, placeholder, className }: Prop
     <Field className={`grid gap-2 ${className}`}>
       {label && <FieldLabel className='text-base font-normal' htmlFor={id}>{label}</FieldLabel>}
       <div className='flex gap-2'>
-        {skills.map((skill, index) => (
+        {options.map((option, index) => (
           <Badge key={index}>
-            <span>{skill}</span>
+            <span>{option}</span>
             <span
               className='rounded-full cursor-pointer'
-              onClick={() => setSkills(skills.filter(s => s !== skill))}
+              onClick={() => setOptions(options.filter(s => s !== option))}
             >
               <X />
             </span>

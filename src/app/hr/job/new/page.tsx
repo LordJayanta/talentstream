@@ -1,8 +1,10 @@
 'use client'
 
+import { createJobAction } from '@/actions/job-actions'
 import FieldCheckBox from '@/components/core/field-check-box'
 import FieldInput from '@/components/core/field-input'
 import FieldOptionInput from '@/components/core/field-option-input'
+import FieldSelect, { SelectItems } from '@/components/core/field-select'
 import HRHeader from '@/components/hr-sections/hr-header'
 import JobInputCard from '@/components/hr-sections/job-input-card'
 import { Button } from '@/components/ui/button'
@@ -22,21 +24,90 @@ const EditorClient = dynamic(
 )
 
 export default function Page() {
+  const [title, setTitle] = useState<string>('');
+  const [minSalary, setMinSalary] = useState<string>('');
+  const [maxSalary, setMaxSalary] = useState<string>('');
+  const [department, setDepartment] = useState<string>('');
+  const [employmentType, setEmploymentType] = useState<string | null>(null);
+  const [experience, setExperience] = useState<string | null>(null);
+  const [location, setLocation] = useState<string>('');
+  const [isRemote, setIsRemote] = useState<boolean>(false);
   const [description, setDescription] = useState<string>('');
+  const [mustHaveSkills, setMustHaveSkills] = useState<string[]>([]);
+  const [niceToHaveSkills, setNiceToHaveSkills] = useState<string[]>([]);
+
+  const [companyBenefits, setCompanyBenefits] = useState<{ id: string; label: string; checked: boolean }[]>([
+    {id: 'healthInsurance', label: 'Health Insurance', checked: false},
+    {id: 'matching401k', label: '401(k) Matching', checked: false},
+    {id: 'unlimitedPTO', label: 'Unlimited PTO', checked: false},
+    {id: 'learningBudget', label: 'Learning Budget', checked: false},
+  ]);
+
+
   const editorRef = useRef(null);
 
-  const benefits = [
-    'Health Insurance',
-    '401(k) Matching',
-    'Unlimited PTO',
-    'Learning Budget',
+  const employmentTypeItem: SelectItems[] = [
+    { label: "Full Time", value: "FULL_TIME" },
+    { label: "Part Time", value: "PART_TIME" },
+    { label: "Contract", value: "CONTRACT" },
+    { label: "Internship", value: "INTERNSHIP" },
   ]
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const employmentExperience: SelectItems[] = [
+    { label: "Freshers, Less than 1 year", value: "0-1" },
+    { label: "1 to 3 years", value: "1-3" },
+    { label: "3 to 5 years", value: "3-5" },
+    { label: "5 to 10 years", value: "5-10" },
+    { label: "10+ years", value: "10+" },
+  ]
+
+  
+  
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitted Markdown: ");
-    console.log(description);
-    // Later, you will send this 'description' string to your database!
+    console.log("Submitted client: ");
+
+    const finalLocation = isRemote ? "REMOTE" : location;
+
+    console.log({
+      title,
+      minSalary,
+      maxSalary,
+      department,
+      employmentType,
+      experience,
+      location: finalLocation,
+      isRemote,
+      description,
+      mustHaveSkills,
+      niceToHaveSkills,
+      companyBenefits
+    })
+
+
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("minSalary", minSalary);
+    formData.append("maxSalary", maxSalary);
+    formData.append("department", department);
+    formData.append("employmentType", employmentType as string);
+    formData.append("experience", experience as string);
+    formData.append("location", finalLocation);
+    formData.append("mustHaveSkills", JSON.stringify(mustHaveSkills));
+    formData.append("niceToHaveSkills", JSON.stringify(niceToHaveSkills));
+    formData.append("companyBenefits", JSON.stringify(companyBenefits));
+
+
+    const result = await createJobAction(formData);
+    console.log("result: ", result);
+    if (result.success) {
+      alert(result.message);
+    } else {
+      alert(result.message);
+    }
   };
 
   return (
@@ -47,12 +118,40 @@ export default function Page() {
         <FieldSet className='space-y-6 mb-12'>
           <JobInputCard title='Basic Information' icon={<Info size={20} />}>
             <FieldSet className=''>
-              <FieldGroup className='grid grid-cols-2 gap-x-6 gap-y-6 text-zinc-600'>
-                <FieldInput label='Job Title' placeholder='e.g. Senior Full Stack Engineer' className='col-span-2' />
-                <FieldInput label='Job Title' placeholder='e.g. Senior Full Stack Engineer' className='col-span-1' />
-                <FieldInput label='Job Title' placeholder='e.g. Senior Full Stack Engineer' className='col-span-1' />
+              <FieldGroup className='grid grid-cols-6 gap-x-6 gap-y-6 text-zinc-600'>
+                <FieldInput
+                  label='Job Title'
+                  placeholder='e.g. Senior Full Stack Engineer'
+                  className='col-span-6'
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <FieldInput
+                  label='Department'
+                  placeholder='e.g. Senior Full Stack Engineer'
+                  className='col-span-2'
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                />
+                <FieldSelect
+                  label='Employment Type'
+                  placeholder='e.g. Full Time'
+                  className='col-span-2'
+                  items={employmentTypeItem}
+                  value={employmentType as string}
+                  onValueChange={setEmploymentType}
+                />
+                <FieldSelect
+                  label='Experience'
+                  placeholder='e.g. Freshers'
+                  className='col-span-2'
+                  items={employmentExperience}
+                  value={experience as string}
+                  onValueChange={setExperience}
+                />
 
-                <div className='flex items-center flex-wrap p-4 col-span-2 bg-primary-foreground border border-primary/10 rounded-[16px]'>
+
+                <div className='flex items-center flex-wrap p-4 col-span-6 bg-primary-foreground border border-primary/10 rounded-[16px]'>
                   <FieldContent>
                     <FieldTitle className='text-base font-normal text-primary '>Location Strategy</FieldTitle>
                     <FieldDescription>Allow applicants from anywhere in the world</FieldDescription>
@@ -60,11 +159,28 @@ export default function Page() {
 
                   <div className='flex gap-4'>
                     <Field className=''>
-                      <Input className='bg-card text-base font-normal px-4 py-2 ' placeholder='e.g City, Country' />
+                      <Input
+                        className='bg-card text-base font-normal px-4 py-2 '
+                        placeholder='e.g City, Country'
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        disabled={isRemote}
+                      />
                     </Field>
 
                     <Field orientation="horizontal" className="w-fit">
-                      <Switch id="remote" />
+                      <Switch
+                        id="remote"
+                        checked={isRemote}
+                        onCheckedChange={(checked) => {
+                          setIsRemote(checked);
+                          if (checked) {
+                            setLocation('Remote location');
+                          } else {
+                            setLocation('');
+                          }
+                        }}
+                      />
                       <FieldLabel className='text-base font-normal text-zinc-600' htmlFor="remote">Remote</FieldLabel>
                     </Field>
                   </div>
@@ -84,19 +200,29 @@ export default function Page() {
                   label='Minimum Salary (Annual USD)'
                   placeholder='e.g. 80,000'
                   className='col-span-2'
+                  value={minSalary}
+                  onChange={(e) => setMinSalary(e.target.value)}
                 />
                 <FieldInput
                   label='Maximum Salary (Annual USD)'
                   placeholder='e.g. 120,000'
                   className='col-span-2'
+                  value={maxSalary}
+                  onChange={(e) => setMaxSalary(e.target.value)}
                 />
                 <FieldSet className='col-span-4'>
                   <FieldLegend variant="label" className='text-zinc-600'>Company Benefits</FieldLegend>
                   <FieldGroup className='grid grid-cols-4 gap-x-2 gap-y-2'>
                     {
-                      benefits.map((benefit) => (
-                        <div key={benefit} className='col-span-1 p-3 border rounded-lg'>
-                          <FieldCheckBox label={benefit} />
+                      companyBenefits.map((benefit) => (
+                        <div key={benefit.id} className='col-span-1 p-3 border rounded-lg'>
+                          <FieldCheckBox 
+                          label={benefit.label} 
+                          checked={benefit.checked}
+                          onCheckedChange={(checked) => setCompanyBenefits(
+                              companyBenefits.map(b => b.id ===benefit.id ? {...b, checked } : b)
+                            )}
+                          />
                         </div>
                       ))
                     }
@@ -129,8 +255,20 @@ export default function Page() {
             icon={<BrainCircuit size={20} />}
           >
             <FieldGroup className='grid grid-cols-2 gap-x-6 gap-y-6 text-zinc-600'>
-              <FieldOptionInput label='Must-have Skills' placeholder='e.g. Senior Full Stack Engineer' className='col-span-2' />
-              <FieldOptionInput label='Nice-to-have Skills' placeholder='e.g. Senior Full Stack Engineer' className='col-span-2' />
+              <FieldOptionInput
+                label='Must-have Skills'
+                placeholder='e.g. Senior Full Stack Engineer'
+                className='col-span-2'
+                options={mustHaveSkills}
+                setOptions={setMustHaveSkills}
+              />
+              <FieldOptionInput
+                label='Nice-to-have Skills'
+                placeholder='e.g. Senior Full Stack Engineer'
+                className='col-span-2'
+                options={niceToHaveSkills}
+                setOptions={setNiceToHaveSkills}
+              />
             </FieldGroup>
           </JobInputCard>
 
