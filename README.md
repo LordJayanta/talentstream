@@ -1,11 +1,16 @@
 # Update 
 
-start design for home page.
-create header components.
-install lecide-react icons
-install shadcn components c
-
-
+use this for update better auth
+```bash
+bunx auth@latest generate --output .\src\db\schema\auth.ts
+```
+also updit it :
+```bash
+// src/db/schema/auth.ts
+role: text("role", { enum: ["candidate", "employer", "admin"] })
+    .default("candidate")
+    .notNull(),
+```
 
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
