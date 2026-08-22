@@ -1,5 +1,12 @@
-import { pgTable, text,integer, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  integer,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
+// --- JOBS TABLE ---
 export const jobsTable = pgTable("jobs", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: text("title").notNull(),
@@ -19,3 +26,4 @@ export const jobsTable = pgTable("jobs", {
 
 export type InsertJob = typeof jobsTable.$inferInsert;
 export type SelectJob = typeof jobsTable.$inferSelect;
+

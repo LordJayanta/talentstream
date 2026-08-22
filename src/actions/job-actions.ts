@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db"; // wherever your drizzle client file is
-import { jobsTable } from "@/db/schema";
+import { jobsTable } from "@/db/schema/jobs";
 import { revalidatePath } from "next/cache";
 
 export async function createJobAction(formData: FormData) {
