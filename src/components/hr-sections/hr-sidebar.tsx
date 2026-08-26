@@ -47,7 +47,6 @@ const navLink: NavLink[] = [
 
 export default function HRSidebar() {
   const pathname = usePathname();
-  console.log("pathname : ", pathname)
 
   return (
     <aside className='h-screen border-r border-accent-foreground/25 p-5 space-y-8'>

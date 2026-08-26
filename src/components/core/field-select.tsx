@@ -1,49 +1,76 @@
+"use client"
+
 import React, { useId } from 'react'
-import { Field, FieldLabel } from '@/components/ui/field'
+import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { SelectRootChangeEventDetails } from '@base-ui/react';
 
-interface Props {
-  label?: string;
-  placeholder?: string;
-  className?: string;
-  defaultValue?: SelectItems['value'];
-  items: SelectItems[];
-  value?: string;
-  onValueChange?: ((value: string | null, eventDetails: SelectRootChangeEventDetails) => void) | undefined
-}
-
-export type SelectItems = {
+export type SelectItemType = {
   label: string;
   value: string;
 }
 
-export default function FieldSelect({ label, className, placeholder, items, defaultValue, value, onValueChange }: Props) {
-  const id = useId()
+export type SelectItems = SelectItemType;
 
-  return (
-    <Field className={`grid gap-2 ${className}`}>
-      {label && <FieldLabel className='text-base font-normal' htmlFor={id}>{label}</FieldLabel>}
-      <Select
-        id={id}
-        items={items}
-        defaultValue={defaultValue}
-        value={value}
-        onValueChange={onValueChange}
-      >
-        <SelectTrigger className='text-base font-normal px-4 py-3'>
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent alignItemWithTrigger={true} className='text-base font-normal px-4 py-3'>
-          <SelectGroup>
-            {items.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </Field>
-  )
+interface FieldSelectProps {
+  label?: string;
+  placeholder?: string;
+  className?: string;
+  defaultValue?: string;
+  items: SelectItemType[];
+  value?: string;
+  onValueChange?: (value: string) => void;
+  error?: string;
+  name?: string;
 }
+
+const FieldSelect = React.forwardRef<HTMLButtonElement, FieldSelectProps>(
+  ({ label, className, placeholder, items, defaultValue, value, onValueChange, error, name }, ref) => {
+    const generatedId = useId()
+    const isControlled = React.useRef(value !== undefined).current
+
+    return (
+      <Field className={`grid gap-2 ${className}`}>
+        {label && (
+          <FieldLabel className='text-base font-normal' htmlFor={generatedId}>
+            {label}
+          </FieldLabel>
+        )}
+        <Select
+          id={generatedId}
+          name={name}
+          items={items}
+          {...(isControlled ? { value: value ?? null } : { defaultValue })}
+          onValueChange={(val) => {
+            if (val !== null && onValueChange) {
+              onValueChange(val);
+            }
+          }}
+        >
+          <SelectTrigger 
+            ref={ref}
+            id={generatedId}
+            aria-invalid={!!error}
+            className='text-base font-normal px-4 py-3'
+          >
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={true} className='text-base font-normal px-4 py-3'>
+            <SelectGroup>
+              {items.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
+        {error && <FieldError className="text-xs text-destructive mt-1">{error}</FieldError>}
+      </Field>
+    )
+  }
+)
+
+FieldSelect.displayName = 'FieldSelect'
+
+export default FieldSelect
