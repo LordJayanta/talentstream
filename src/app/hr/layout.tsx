@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description: "Job Editor - Talent Stream",
 };
 
-export default async function RootLayout({
+export default async function HRLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
