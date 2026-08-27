@@ -1,12 +1,24 @@
+'use server'
+
 import Link from 'next/link'
 import { Bell, Settings } from 'lucide-react'
-import Avatar from '../avatar'
+import AvatarOption from '../core/avatar-option';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 type Props = {
   title: string;
 }
 
-function HRHeader({ title }: Props) {
+async function HRHeader({ title }: Props) {
+  const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+  
+    if (!session) redirect("/login");
+    if (session?.user?.role !== "employer") redirect("/");
+  
   return (
     <div className='h-16 w-full'>
       <header className='absolute top-0 h-16 w-full flex justify-between items-center px-6 border-b border-accent-foreground/25'>
@@ -16,11 +28,11 @@ function HRHeader({ title }: Props) {
           </div>
         </div>
 
-        <div className="flex justify-between items-center gap-4">
+        {session  && <div className="flex justify-between items-center gap-4">
           <Bell />
           <Settings />
-          <Avatar />
-        </div>
+          {session?.user && <AvatarOption />}
+        </div>}
       </header>
     </div>
   )
