@@ -90,7 +90,7 @@ export default function Page() {
 
   return (
     <div>
-      {/* <HRHeader title='Create New Job' /> */}
+      <HRHeader title='Create New Job' />
       <main className='py-6 px-12'>
         <form onSubmit={handleSubmit(onSubmit, (errors) => console.log("Validation Errors:", errors))}>
           {/* Basic Information */}

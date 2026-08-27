@@ -1,4 +1,4 @@
-'use server'
+'use client'
 
 import Link from 'next/link'
 import React from 'react'
@@ -8,13 +8,10 @@ import { Field } from '../ui/field'
 import { ButtonGroup } from '../ui/button-group'
 import { Bell, Settings } from 'lucide-react'
 import AvatarOption from './avatar-option'
-import { auth } from '@/lib/auth'
-import { headers } from 'next/headers'
+import { authClient } from '@/lib/auth-client'
 
-async function Header() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+function Header() {
+  const { data: session } = authClient.useSession();
 
   return (
     <div className='h-16 w-full'>
@@ -39,14 +36,14 @@ async function Header() {
             </ButtonGroup>
           </Field>
 
-          {session  && <ButtonGroup className="gap-2">
+          {session && <ButtonGroup className="gap-2">
             <Bell />
             <Settings />
           </ButtonGroup>}
 
-        {session?.user && <AvatarOption />}
-      </div>
-    </header>
+          {session?.user && <AvatarOption />}
+        </div>
+      </header>
     </div>
   )
 }
