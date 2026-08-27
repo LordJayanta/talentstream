@@ -2,25 +2,20 @@
 
 import { db } from "@/db"; // wherever your drizzle client file is
 import { jobsTable } from "@/db/schema/jobs";
+import { auth } from "@/lib/auth";
+import { JobForm, jobFormSchema } from "@/lib/validations/job";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
-export async function createJobAction(formData: FormData) {
-  // Extract data from the form fields
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const salary = formData.get("salary") as string;
-  const location = formData.get("location") as string;
-  const experience = formData.get("experience") as string;
-  const companyBenefits = formData.get("companyBenefits") as string;
-  const department = formData.get("department") as string;
-  const employmentType = formData.get("employmentType") as string;
-  const maxSalary = formData.get("maxSalary") as string;
-  const minSalary = formData.get("minSalary") as string;
-  const mustHaveSkills = formData.get("mustHaveSkills") as string;
-  const niceToHaveSkills = formData.get("niceToHaveSkills") as string;
+export async function createJobAction(value:JobForm) {
+  const data = jobFormSchema.parse(value);
+  const session = await auth.api.getSession({ headers: await headers() });
 
-  console.log("Submitted Server: ");
-  console.log({
+  if (!session) {
+    return { success: false, message: "You must be logged in to create a job." };
+  }
+
+  const {
     title,
     minSalary,
     maxSalary,
@@ -31,22 +26,25 @@ export async function createJobAction(formData: FormData) {
     description,
     mustHaveSkills,
     niceToHaveSkills,
-  });
+    companyBenefits,
+  } = data;
+
 
   try {
     // Insert into database using Drizzle
     await db.insert(jobsTable).values({
       title,
+      recruiterId: session?.user.id as string,
       description,
       location,
       experience,
       department,
       employmentType,
-      companyBenefits: companyBenefits ? JSON.parse(companyBenefits) : [],
+      companyBenefits: companyBenefits.map((benefit) => benefit.label),
       minSalary: minSalary ? Number.parseInt(minSalary, 10) : null,
       maxSalary: maxSalary ? Number.parseInt(maxSalary, 10) : null,
-      mustHaveSkills: mustHaveSkills ? JSON.parse(mustHaveSkills) : [],
-      niceToHaveSkills: niceToHaveSkills ? JSON.parse(niceToHaveSkills) : [],
+      mustHaveSkills,
+      niceToHaveSkills,
       status: "active",
     });
 

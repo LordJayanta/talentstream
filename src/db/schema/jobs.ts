@@ -5,10 +5,15 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { user } from "./auth";
 
 // --- JOBS TABLE ---
 export const jobsTable = pgTable("jobs", {
   id: uuid("id").defaultRandom().primaryKey(),
+
+  // Relational link to the recruiter/employer
+  recruiterId: text("recruiter_id").notNull().references(() => user.id, {onDelete: 'cascade'}),
+
   title: text("title").notNull(),
   experience: text("experience"),
   department: text("department"),
