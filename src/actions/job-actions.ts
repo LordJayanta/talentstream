@@ -8,7 +8,6 @@ export async function createJobAction(formData: FormData) {
   // Extract data from the form fields
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
-  const salary = formData.get("salary") as string;
   const location = formData.get("location") as string;
   const experience = formData.get("experience") as string;
   const companyBenefits = formData.get("companyBenefits") as string;

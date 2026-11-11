@@ -16,7 +16,8 @@ interface PageProps {
 
 
 export default async function Page({ params }: PageProps) {
-  const router = await params;
+  const { id } = await params;
+  void id;
 
   const badge = [
     {

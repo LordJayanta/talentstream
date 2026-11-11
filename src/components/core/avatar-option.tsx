@@ -50,9 +50,9 @@ export default function AvatarOption() {
             Profile
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant='destructive' onClick={handleLogout}>
+          <DropdownMenuItem variant='destructive' disabled={loading} onClick={handleLogout}>
             <LogOutIcon />
-            Logout
+            {loading ? "Logging out..." : "Logout"}
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
