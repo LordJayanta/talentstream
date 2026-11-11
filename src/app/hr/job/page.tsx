@@ -1,6 +1,6 @@
 import HRHeader from "@/components/hr-sections/hr-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Briefcase, CirclePlus } from "lucide-react";
 import Link from "next/link";
@@ -23,16 +23,14 @@ export default async function Page() {
             </p>
           </div>
           <div>
-            <Link href="/hr/job/new">
-              <Button className="gap-2">
-                <CirclePlus size={18} />
-                <span>Post New Job</span>
-              </Button>
+            <Link href="/hr/job/new" className={buttonVariants({ className: "gap-2" })}>
+              <CirclePlus size={18} />
+              <span>Post New Job</span>
             </Link>
           </div>
         </section>
 
-        <section className="border rounded-xl bg-card overflow-hidden shadow-xs">
+        <section className="border rounded-xl bg-card overflow-x-auto shadow-xs">
           <Table className="text-sm">
             <TableHeader>
               <TableRow className="bg-muted/50">
@@ -97,10 +95,11 @@ export default async function Page() {
                     <div className="space-y-2">
                       <Briefcase size={28} className="mx-auto text-muted-foreground/60" />
                       <p className="font-medium text-sm">No jobs posted yet.</p>
-                      <Link href="/hr/job/new">
-                        <Button variant="outline" size="sm" className="mt-2 text-xs">
-                          Create your first job post
-                        </Button>
+                      <Link
+                        href="/hr/job/new"
+                        className={buttonVariants({ variant: "outline", size: "sm", className: "mt-2 text-xs" })}
+                      >
+                        Create your first job post
                       </Link>
                     </div>
                   </TableCell>

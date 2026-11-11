@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   InputGroup,
@@ -211,10 +211,11 @@ export default function JobSearchFeed({ initialJobs = [], viewerRole }: JobSearc
                       className="flex items-center gap-2 cursor-pointer text-foreground/80 hover:text-foreground"
                     >
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="employment-type-filter"
                         checked={selectedType === item.value}
                         onChange={() => toggleType(item.value)}
-                        className="rounded border-input text-primary focus:ring-primary h-4 w-4"
+                        className="border-input text-primary focus:ring-primary h-4 w-4"
                       />
                       <span>{item.label}</span>
                     </label>
@@ -269,10 +270,11 @@ export default function JobSearchFeed({ initialJobs = [], viewerRole }: JobSearc
                 </p>
               </CardContent>
               <CardFooter>
-                <Link href="/candidate/profile" className="w-full">
-                  <Button variant="outline" size="sm" className="w-full text-xs">
-                    Update Resume & Skills
-                  </Button>
+                <Link
+                  href="/candidate/profile"
+                  className={buttonVariants({ variant: "outline", size: "sm", className: "w-full text-xs" })}
+                >
+                  Update Resume &amp; Skills
                 </Link>
               </CardFooter>
             </Card>

@@ -178,6 +178,7 @@ export default function JobCard({ job, viewerRole }: JobCardProps) {
                   onClick={handleSave}
                   className={`h-9 px-3 ${isSaved ? "text-primary border-primary" : ""}`}
                   title={isSaved ? "Saved" : "Save job"}
+                  aria-label={isSaved ? "Remove saved job" : "Save job"}
                 >
                   <Bookmark size={16} className={isSaved ? "fill-primary" : ""} />
                 </Button>

@@ -117,19 +117,20 @@ export default function CandidateProfileForm({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Full Name</label>
-              <Input value={user?.name || ""} disabled className="bg-muted text-xs" />
+              <label htmlFor="candidate-name" className="text-xs font-semibold text-muted-foreground">Full Name</label>
+              <Input id="candidate-name" value={user?.name || ""} disabled className="bg-muted text-xs" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Email Address</label>
-              <Input value={user?.email || ""} disabled className="bg-muted text-xs" />
+              <label htmlFor="candidate-email" className="text-xs font-semibold text-muted-foreground">Email Address</label>
+              <Input id="candidate-email" value={user?.email || ""} disabled className="bg-muted text-xs" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Headline / Target Role</label>
+              <label htmlFor="candidate-headline" className="text-xs font-semibold text-foreground">Headline / Target Role</label>
               <Input
+                id="candidate-headline"
                 placeholder="e.g. Senior Frontend Engineer"
                 value={headline}
                 onChange={(e) => setHeadline(e.target.value)}
@@ -137,8 +138,9 @@ export default function CandidateProfileForm({
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Location</label>
+              <label htmlFor="candidate-location" className="text-xs font-semibold text-foreground">Location</label>
               <Input
+                id="candidate-location"
                 placeholder="e.g. San Francisco, CA or Remote"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
@@ -148,8 +150,9 @@ export default function CandidateProfileForm({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground">Years of Experience</label>
+            <label htmlFor="candidate-experience" className="text-xs font-semibold text-foreground">Years of Experience</label>
             <select
+              id="candidate-experience"
               value={experienceLevel}
               onChange={(e) => setExperienceLevel(e.target.value)}
               className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-xs shadow-xs focus:ring-1 focus:ring-primary outline-hidden"
@@ -163,8 +166,9 @@ export default function CandidateProfileForm({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground">Bio / Professional Summary</label>
+            <label htmlFor="candidate-bio" className="text-xs font-semibold text-foreground">Bio / Professional Summary</label>
             <Textarea
+              id="candidate-bio"
               placeholder="Highlight your key achievements, engineering background, and domains of interest..."
               rows={4}
               value={bio}
@@ -254,6 +258,7 @@ export default function CandidateProfileForm({
                   type="button"
                   onClick={() => handleRemoveSkill(skill)}
                   className="hover:text-destructive cursor-pointer"
+                  aria-label={`Remove ${skill} skill`}
                 >
                   <X size={12} />
                 </button>
@@ -322,7 +327,7 @@ export default function CandidateProfileForm({
 
           <div className="pt-3 border-t space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-foreground">
+              <label htmlFor="candidate-resume-text" className="text-xs font-semibold text-foreground">
                 Pasted Resume / Work Summary (Optional):
               </label>
               <Button
@@ -346,6 +351,7 @@ export default function CandidateProfileForm({
               </Button>
             </div>
             <Textarea
+              id="candidate-resume-text"
               placeholder="Paste your resume sections, work history, or tech stack here..."
               rows={4}
               value={resumeText}

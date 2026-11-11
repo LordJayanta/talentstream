@@ -22,11 +22,11 @@ export default async function HRLayout({
   if (session?.user?.role !== "employer") redirect("/");
   
   return (
-    <div className='grid grid-cols-12 min-h-screen'>
-      <div className="col-span-2">
+    <div className='flex min-h-screen flex-col md:grid md:grid-cols-12'>
+      <div className="md:col-span-2">
         <HRSidebar />
       </div>
-      <div className='relative col-span-10 bg-accent min-h-screen'>
+      <div className='relative flex-1 md:col-span-10 bg-accent min-h-screen'>
         {children}
       </div>
     </div>

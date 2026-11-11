@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,23 +77,29 @@ export default function HRJobRowActions({
         </Button>
       )}
 
-      <Link href={`/hr/candidate?jobId=${jobId}`}>
-        <Button variant="ghost" size="sm" className="text-xs h-7 gap-1">
-          <Users size={14} />
-          <span>Applicants</span>
-        </Button>
+      <Link
+        href={`/hr/candidate?jobId=${jobId}`}
+        className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs h-7 gap-1" })}
+      >
+        <Users size={14} />
+        <span>Applicants</span>
       </Link>
 
-      <Link href={`/job/${jobId}`} target="_blank">
-        <Button variant="ghost" size="icon-sm" title="View Public Post">
-          <Eye size={16} className="text-muted-foreground" />
-        </Button>
+      <Link
+        href={`/job/${jobId}`}
+        target="_blank"
+        className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+        title="View Public Post"
+      >
+        <Eye size={16} className="text-muted-foreground" />
       </Link>
 
-      <Link href={`/hr/job/${jobId}/edit`}>
-        <Button variant="ghost" size="icon-sm" title="Edit Job">
-          <Pen size={16} className="text-muted-foreground" />
-        </Button>
+      <Link
+        href={`/hr/job/${jobId}/edit`}
+        className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+        title="Edit Job"
+      >
+        <Pen size={16} className="text-muted-foreground" />
       </Link>
 
       <DropdownMenu>

@@ -49,14 +49,14 @@ export default function HRSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className='h-screen border-r border-accent-foreground/25 p-5 space-y-8'>
+    <aside className='border-b md:border-b-0 md:border-r border-accent-foreground/25 p-3 md:p-5 md:h-screen md:sticky md:top-0 space-y-3 md:space-y-8'>
       <div className="">
-        <Link href="/" className='text-primary font-bold text-2xl'>TalentStream</Link>
+        <Link href="/" className='text-primary font-bold text-xl md:text-2xl'>TalentStream</Link>
       </div>
-      <nav className="md:visible invisible flex flex-col gap-1">
+      <nav className="flex gap-1 overflow-x-auto md:overflow-visible md:flex-col pb-1 md:pb-0">
         {
           navLink.map((item, index) => (
-            <Link key={index} href={item.route} className={`flex items-center justify-start gap-3 px-4 py-3 rounded-[12px] ${(pathname.includes(item.route)) && 'bg-primary/15 text-primary'}`}>
+            <Link key={index} href={item.route} className={`flex items-center justify-start gap-2 md:gap-3 px-3 py-2 md:px-4 md:py-3 rounded-[12px] text-xs md:text-sm whitespace-nowrap shrink-0 ${(pathname.includes(item.route)) && 'bg-primary/15 text-primary'}`}>
               {item.icon}
               <span>{item.label}</span>
             </Link>

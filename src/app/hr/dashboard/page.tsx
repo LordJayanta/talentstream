@@ -1,7 +1,7 @@
 import HRHeader from "@/components/hr-sections/hr-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Briefcase,
@@ -65,11 +65,9 @@ export default async function Page() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/hr/job/new">
-              <Button className="gap-2">
-                <CirclePlus size={18} />
-                <span>Post New Job</span>
-              </Button>
+            <Link href="/hr/job/new" className={buttonVariants({ className: "gap-2" })}>
+              <CirclePlus size={18} />
+              <span>Post New Job</span>
             </Link>
           </div>
         </div>
@@ -103,15 +101,16 @@ export default async function Page() {
                 Latest candidates who applied to your open positions.
               </p>
             </div>
-            <Link href="/hr/candidate">
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-                <span>View All Candidates</span>
-                <ArrowRight size={14} />
-              </Button>
+            <Link
+              href="/hr/candidate"
+              className={buttonVariants({ variant: "outline", size: "sm", className: "gap-1.5 text-xs" })}
+            >
+              <span>View All Candidates</span>
+              <ArrowRight size={14} />
             </Link>
           </div>
 
-          <div className="border rounded-xl bg-card overflow-hidden shadow-xs">
+          <div className="border rounded-xl bg-card overflow-x-auto shadow-xs">
             <Table className="text-sm">
               <TableHeader>
                 <TableRow className="bg-muted/50">
@@ -151,7 +150,7 @@ export default async function Page() {
                           className="text-[11px] font-semibold gap-1"
                         >
                           <Sparkles size={11} className="text-primary" />
-                          {app.matchScore ?? 80}%
+                          {app.matchScore != null ? `${app.matchScore}%` : "—"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-center">
@@ -170,10 +169,11 @@ export default async function Page() {
                         {new Date(app.appliedAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right pr-6">
-                        <Link href={`/hr/candidate?jobId=${app.jobId}`}>
-                          <Button variant="ghost" size="sm" className="text-xs h-7">
-                            Review
-                          </Button>
+                        <Link
+                          href={`/hr/candidate?jobId=${app.jobId}`}
+                          className={buttonVariants({ variant: "ghost", size: "sm", className: "text-xs h-7" })}
+                        >
+                          Review
                         </Link>
                       </TableCell>
                     </TableRow>

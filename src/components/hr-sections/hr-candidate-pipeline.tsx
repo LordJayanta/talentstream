@@ -146,7 +146,7 @@ export default function HRCandidatePipeline({
       </div>
 
       {/* Applications Table */}
-      <div className="border rounded-xl bg-card overflow-hidden shadow-xs">
+      <div className="border rounded-xl bg-card overflow-x-auto shadow-xs">
         <Table className="text-sm">
           <TableHeader>
             <TableRow className="bg-muted/50">
