@@ -5,10 +5,14 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { user } from "./auth";
 
 // --- JOBS TABLE ---
 export const jobsTable = pgTable("jobs", {
   id: uuid("id").defaultRandom().primaryKey(),
+  employerId: text("employer_id").references(() => user.id, { onDelete: "cascade" }),
+  companyName: text("company_name").default("TalentStream").notNull(),
+  companyLogo: text("company_logo"),
   title: text("title").notNull(),
   experience: text("experience"),
   department: text("department"),
