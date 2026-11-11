@@ -273,3 +273,37 @@ export async function getCandidateApplicationsAction() {
     return { success: false, applications: [] };
   }
 }
+
+export async function getCandidateSavedJobsAction() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return { success: false, savedJobs: [] };
+  }
+
+  try {
+    const savedJobs = await db
+      .select({
+        id: savedJobsTable.id,
+        jobId: savedJobsTable.jobId,
+        title: jobsTable.title,
+        companyName: jobsTable.companyName,
+        location: jobsTable.location,
+        minSalary: jobsTable.minSalary,
+        maxSalary: jobsTable.maxSalary,
+        employmentType: jobsTable.employmentType,
+        createdAt: savedJobsTable.createdAt,
+      })
+      .from(savedJobsTable)
+      .innerJoin(jobsTable, eq(savedJobsTable.jobId, jobsTable.id))
+      .where(eq(savedJobsTable.userId, session.user.id))
+      .orderBy(desc(savedJobsTable.createdAt));
+
+    return { success: true, savedJobs };
+  } catch (error) {
+    console.error("Failed to get candidate saved jobs:", error);
+    return { success: false, savedJobs: [] };
+  }
+}

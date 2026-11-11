@@ -1,11 +1,7 @@
-'use server'
-
-import Link from 'next/link'
 import { Bell, Settings } from 'lucide-react'
 import AvatarOption from '../core/avatar-option';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 
 type Props = {
   title: string;
@@ -13,26 +9,25 @@ type Props = {
 
 async function HRHeader({ title }: Props) {
   const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-  
-    if (!session) redirect("/login");
-    if (session?.user?.role !== "employer") redirect("/");
+    headers: await headers(),
+  });
   
   return (
     <div className='h-16 w-full'>
-      <header className='absolute top-0 h-16 w-full flex justify-between items-center px-6 border-b border-accent-foreground/25'>
+      <header className='absolute top-0 h-16 w-full flex justify-between items-center px-6 border-b border-accent-foreground/25 bg-background'>
         <div className="flex justify-between items-center gap-8">
-          <div className="">
-            <Link href="/" className='text-secondary-foreground font-bold text-2xl'>{title}</Link>
+          <div>
+            <span className='text-secondary-foreground font-bold text-2xl'>{title}</span>
           </div>
         </div>
 
-        {session  && <div className="flex justify-between items-center gap-4">
-          <Bell />
-          <Settings />
-          {session?.user && <AvatarOption />}
-        </div>}
+        {session && (
+          <div className="flex justify-between items-center gap-4">
+            <Bell size={18} className="text-muted-foreground" />
+            <Settings size={18} className="text-muted-foreground" />
+            {session?.user && <AvatarOption />}
+          </div>
+        )}
       </header>
     </div>
   )

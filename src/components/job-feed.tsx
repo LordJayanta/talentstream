@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,17 +14,22 @@ import { getJobsAction, JobFilterOptions } from "@/actions/job-actions";
 import { Briefcase, Loader2, Sparkles } from "lucide-react";
 
 interface JobFeedProps {
+  initialJobs?: JobCardData[];
   initialFilters?: JobFilterOptions;
 }
 
-export default function JobFeed({ initialFilters = {} }: JobFeedProps) {
-  const [jobs, setJobs] = useState<JobCardData[]>([]);
+export default function JobFeed({
+  initialJobs = [],
+  initialFilters,
+}: JobFeedProps) {
+  const [jobs, setJobs] = useState<JobCardData[]>(initialJobs);
   const [sortBy, setSortBy] = useState<"match" | "newest">("match");
   const [isPending, startTransition] = useTransition();
+  const isFirstMount = useRef(true);
 
   const loadJobs = (sortOption = sortBy) => {
     startTransition(async () => {
-      const res = await getJobsAction({ ...initialFilters, sortBy: sortOption });
+      const res = await getJobsAction({ ...(initialFilters || {}), sortBy: sortOption });
       if (res.success && res.jobs) {
         setJobs(res.jobs as unknown as JobCardData[]);
       }
@@ -32,9 +37,24 @@ export default function JobFeed({ initialFilters = {} }: JobFeedProps) {
   };
 
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      // If server already provided initialJobs and no special filters applied, skip initial client fetch
+      if (initialJobs.length > 0 && !initialFilters?.search && !initialFilters?.location && !initialFilters?.isRemote && !initialFilters?.employmentType && !initialFilters?.minSalary && !initialFilters?.maxSalary) {
+        return;
+      }
+    }
     loadJobs(sortBy);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialFilters.search, initialFilters.location, initialFilters.isRemote, initialFilters.employmentType, initialFilters.minSalary, initialFilters.maxSalary, sortBy]);
+  }, [
+    initialFilters?.search,
+    initialFilters?.location,
+    initialFilters?.isRemote,
+    initialFilters?.employmentType,
+    initialFilters?.minSalary,
+    initialFilters?.maxSalary,
+    sortBy,
+  ]);
 
   const handleSortChange = (newSort: "match" | "newest") => {
     setSortBy(newSort);

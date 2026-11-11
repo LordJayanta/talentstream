@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/db";
+import { user } from "@/db/schema/auth";
 import { jobsTable } from "@/db/schema/jobs";
 import { jobApplicationsTable } from "@/db/schema/applications";
 import { savedJobsTable } from "@/db/schema/saved-jobs";
@@ -10,6 +11,23 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { and, desc, eq, ilike, gte, lte, or, sql } from "drizzle-orm";
 import { calculateMatchScore } from "@/lib/match-score";
+
+function parseArrayOfStrings(input?: string | null): string[] {
+  if (!input) return [];
+  try {
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter((item) => typeof item === "string" || item?.checked !== false)
+        .map((item) => (typeof item === "string" ? item : item?.label || item?.id || String(item)))
+        .filter(Boolean);
+    }
+    if (typeof parsed === "string") return [parsed];
+  } catch {
+    return input.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+}
 
 export interface JobFilterOptions {
   search?: string;
@@ -22,46 +40,66 @@ export interface JobFilterOptions {
 }
 
 export async function createJobAction(formData: FormData) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    return { success: false, message: "Unauthorized. Please login to post a job." };
-  }
-
-  const title = (formData.get("title") as string)?.trim();
-  const description = (formData.get("description") as string)?.trim();
-  const location = (formData.get("location") as string)?.trim();
-  const experience = formData.get("experience") as string;
-  const companyBenefits = formData.get("companyBenefits") as string;
-  const department = formData.get("department") as string;
-  const employmentType = formData.get("employmentType") as string;
-  const maxSalary = formData.get("maxSalary") as string;
-  const minSalary = formData.get("minSalary") as string;
-  const mustHaveSkills = formData.get("mustHaveSkills") as string;
-  const niceToHaveSkills = formData.get("niceToHaveSkills") as string;
-  const companyName = (formData.get("companyName") as string)?.trim() || session.user.name || "TalentStream";
-
-  if (!title || !description) {
-    return { success: false, message: "Title and description are required." };
-  }
-
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      return { success: false, message: "Unauthorized. Please login to post a job." };
+    }
+
+    const title = (formData.get("title") as string)?.trim();
+    const rawDesc = (formData.get("description") as string)?.trim();
+    const description = rawDesc || "No detailed description provided.";
+    const location = (formData.get("location") as string)?.trim() || "Remote";
+    const experience = (formData.get("experience") as string) || "Not specified";
+    const department = (formData.get("department") as string) || "General";
+    const employmentType = (formData.get("employmentType") as string) || "FULL_TIME";
+    const maxSalary = formData.get("maxSalary") as string;
+    const minSalary = formData.get("minSalary") as string;
+    const companyBenefits = formData.get("companyBenefits") as string;
+    const mustHaveSkills = formData.get("mustHaveSkills") as string;
+    const niceToHaveSkills = formData.get("niceToHaveSkills") as string;
+    const companyName = (formData.get("companyName") as string)?.trim() || session?.user?.name || "TalentStream";
+
+    if (!title) {
+      return { success: false, message: "Job title is required." };
+    }
+
+    let employerId: string | null = null;
+    if (session?.user?.id) {
+      try {
+        const [u] = await db
+          .select({ id: user.id })
+          .from(user)
+          .where(eq(user.id, session.user.id))
+          .limit(1);
+        if (u) {
+          employerId = u.id;
+        }
+      } catch (err) {
+        console.warn("Could not verify employer foreign key:", err);
+      }
+    }
+
+    const minNum = minSalary ? Number.parseInt(minSalary, 10) : null;
+    const maxNum = maxSalary ? Number.parseInt(maxSalary, 10) : null;
+
     const [newJob] = await db.insert(jobsTable).values({
-      employerId: session.user.id,
+      employerId: employerId ?? undefined,
       companyName,
       title,
       description,
-      location: location || "Remote",
+      location,
       experience,
       department,
       employmentType,
-      companyBenefits: companyBenefits ? JSON.parse(companyBenefits) : [],
-      minSalary: minSalary ? Number.parseInt(minSalary, 10) : null,
-      maxSalary: maxSalary ? Number.parseInt(maxSalary, 10) : null,
-      mustHaveSkills: mustHaveSkills ? JSON.parse(mustHaveSkills) : [],
-      niceToHaveSkills: niceToHaveSkills ? JSON.parse(niceToHaveSkills) : [],
+      companyBenefits: parseArrayOfStrings(companyBenefits),
+      minSalary: minNum && !isNaN(minNum) ? minNum : null,
+      maxSalary: maxNum && !isNaN(maxNum) ? maxNum : null,
+      mustHaveSkills: parseArrayOfStrings(mustHaveSkills),
+      niceToHaveSkills: parseArrayOfStrings(niceToHaveSkills),
       status: "active",
     }).returning();
 
@@ -70,33 +108,44 @@ export async function createJobAction(formData: FormData) {
     return { success: true, message: "Job created successfully!", jobId: newJob?.id };
   } catch (error) {
     console.error("Failed to create job:", error);
-    return { success: false, message: "Database error. Failed to create job." };
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Database error. Failed to create job.",
+    };
   }
 }
 
 export async function updateJobAction(id: string, formData: FormData) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    return { success: false, message: "Unauthorized." };
-  }
-
-  const title = (formData.get("title") as string)?.trim();
-  const description = (formData.get("description") as string)?.trim();
-  const location = (formData.get("location") as string)?.trim();
-  const experience = formData.get("experience") as string;
-  const companyBenefits = formData.get("companyBenefits") as string;
-  const department = formData.get("department") as string;
-  const employmentType = formData.get("employmentType") as string;
-  const maxSalary = formData.get("maxSalary") as string;
-  const minSalary = formData.get("minSalary") as string;
-  const mustHaveSkills = formData.get("mustHaveSkills") as string;
-  const niceToHaveSkills = formData.get("niceToHaveSkills") as string;
-  const status = (formData.get("status") as string) || "active";
-
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      return { success: false, message: "Unauthorized. Please login to post a job." };
+    }
+
+    const title = (formData.get("title") as string)?.trim();
+    const rawDesc = (formData.get("description") as string)?.trim();
+    const description = rawDesc || "No detailed description provided.";
+    const location = (formData.get("location") as string)?.trim() || "Remote";
+    const experience = (formData.get("experience") as string) || "Not specified";
+    const companyBenefits = formData.get("companyBenefits") as string;
+    const department = (formData.get("department") as string) || "General";
+    const employmentType = (formData.get("employmentType") as string) || "FULL_TIME";
+    const maxSalary = formData.get("maxSalary") as string;
+    const minSalary = formData.get("minSalary") as string;
+    const mustHaveSkills = formData.get("mustHaveSkills") as string;
+    const niceToHaveSkills = formData.get("niceToHaveSkills") as string;
+    const status = (formData.get("status") as string) || "active";
+
+    if (!title) {
+      return { success: false, message: "Job title is required." };
+    }
+
+    const minNum = minSalary ? Number.parseInt(minSalary, 10) : null;
+    const maxNum = maxSalary ? Number.parseInt(maxSalary, 10) : null;
+
     await db
       .update(jobsTable)
       .set({
@@ -107,11 +156,11 @@ export async function updateJobAction(id: string, formData: FormData) {
         department,
         employmentType,
         status,
-        companyBenefits: companyBenefits ? JSON.parse(companyBenefits) : [],
-        minSalary: minSalary ? Number.parseInt(minSalary, 10) : null,
-        maxSalary: maxSalary ? Number.parseInt(maxSalary, 10) : null,
-        mustHaveSkills: mustHaveSkills ? JSON.parse(mustHaveSkills) : [],
-        niceToHaveSkills: niceToHaveSkills ? JSON.parse(niceToHaveSkills) : [],
+        companyBenefits: parseArrayOfStrings(companyBenefits),
+        minSalary: minNum && !isNaN(minNum) ? minNum : null,
+        maxSalary: maxNum && !isNaN(maxNum) ? maxNum : null,
+        mustHaveSkills: parseArrayOfStrings(mustHaveSkills),
+        niceToHaveSkills: parseArrayOfStrings(niceToHaveSkills),
       })
       .where(eq(jobsTable.id, id));
 
@@ -121,7 +170,10 @@ export async function updateJobAction(id: string, formData: FormData) {
     return { success: true, message: "Job updated successfully!" };
   } catch (error) {
     console.error("Failed to update job:", error);
-    return { success: false, message: "Failed to update job." };
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to update job.",
+    };
   }
 }
 
@@ -133,13 +185,17 @@ export async function getJobsAction(filters: JobFilterOptions = {}) {
 
     let candidateSkills: string[] = [];
     if (session?.user?.id) {
-      const [profile] = await db
-        .select()
-        .from(candidateProfilesTable)
-        .where(eq(candidateProfilesTable.userId, session.user.id))
-        .limit(1);
-      if (profile?.skills) {
-        candidateSkills = profile.skills;
+      try {
+        const [profile] = await db
+          .select()
+          .from(candidateProfilesTable)
+          .where(eq(candidateProfilesTable.userId, session.user.id))
+          .limit(1);
+        if (profile?.skills) {
+          candidateSkills = profile.skills;
+        }
+      } catch (err) {
+        console.warn("Could not load candidate profile skills:", err);
       }
     }
 

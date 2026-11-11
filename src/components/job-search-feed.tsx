@@ -15,8 +15,13 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { JobFilterOptions } from "@/actions/job-actions";
 import Link from "next/link";
+import { JobCardData } from "./job-card";
 
-export default function JobSearchFeed() {
+interface JobSearchFeedProps {
+  initialJobs?: JobCardData[];
+}
+
+export default function JobSearchFeed({ initialJobs = [] }: JobSearchFeedProps) {
   const [searchInput, setSearchInput] = useState("");
   const [locationInput, setLocationInput] = useState("");
   const [isRemote, setIsRemote] = useState(false);
@@ -248,7 +253,7 @@ export default function JobSearchFeed() {
 
         {/* Job Listings Column */}
         <div className="col-span-1 md:col-span-3">
-          <JobFeed initialFilters={appliedFilters} />
+          <JobFeed initialJobs={initialJobs} initialFilters={appliedFilters} />
         </div>
       </section>
     </>

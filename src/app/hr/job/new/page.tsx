@@ -26,6 +26,7 @@ const EditorClient = dynamic(
 
 export default function Page() {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [title, setTitle] = useState<string>('');
   const [minSalary, setMinSalary] = useState<string>('');
   const [maxSalary, setMaxSalary] = useState<string>('');
@@ -66,51 +67,42 @@ export default function Page() {
   
   
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    console.log("Submitted client: ");
+    if (!title.trim()) {
+      alert("Please enter a Job Title.");
+      return;
+    }
 
-    const finalLocation = isRemote ? "REMOTE" : location;
-
-    console.log({
-      title,
-      minSalary,
-      maxSalary,
-      department,
-      employmentType,
-      experience,
-      location: finalLocation,
-      isRemote,
-      description,
-      mustHaveSkills,
-      niceToHaveSkills,
-      companyBenefits
-    })
-
-
+    setIsSubmitting(true);
+    const finalLocation = isRemote ? "REMOTE" : (location || "Remote");
 
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("description", description);
+    formData.append("description", description || "No detailed description provided.");
     formData.append("minSalary", minSalary);
     formData.append("maxSalary", maxSalary);
-    formData.append("department", department);
-    formData.append("employmentType", employmentType as string);
-    formData.append("experience", experience as string);
+    formData.append("department", department || "General");
+    formData.append("employmentType", (employmentType as string) || "FULL_TIME");
+    formData.append("experience", (experience as string) || "Not specified");
     formData.append("location", finalLocation);
     formData.append("mustHaveSkills", JSON.stringify(mustHaveSkills));
     formData.append("niceToHaveSkills", JSON.stringify(niceToHaveSkills));
     formData.append("companyBenefits", JSON.stringify(companyBenefits));
 
-
-    const result = await createJobAction(formData);
-    console.log("result: ", result);
-    if (result.success) {
-      alert(result.message);
-      router.push('/hr/job');
-      router.refresh();
-    } else {
-      alert(result.message);
+    try {
+      const result = await createJobAction(formData);
+      if (result.success) {
+        alert(result.message);
+        router.push('/hr/job');
+        router.refresh();
+      } else {
+        alert(result.message);
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to create job.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -289,7 +281,15 @@ export default function Page() {
                 <Button type="button" variant="ghost" size={'lg'} className={'px-8 py-3 hover:bg-transparent text-zinc-500 hover:text-zinc-600 text-base'}>
                   Save for later
                 </Button>
-                <Button type="submit" size={'lg'} className={'px-8'} onClick={(e) => handleSubmit(e)}>Publish Job Vacancy</Button>
+                <Button
+                  type="button"
+                  size={'lg'}
+                  disabled={isSubmitting}
+                  className={'px-8'}
+                  onClick={(e) => handleSubmit(e)}
+                >
+                  {isSubmitting ? "Publishing..." : "Publish Job Vacancy"}
+                </Button>
               </div>
             </Field>
           </FieldGroup>
