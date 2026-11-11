@@ -63,7 +63,7 @@ export default function Page() {
         </div>
         <div className="flex flex-col items-center justify-center gap-4 p-6 md:p-10">
           <form
-            className='w-md'
+            className='w-full max-w-md'
             onSubmit={handleSubmit(onSubmit, (errors) => console.log("Validation Errors:", errors))}>
             <FieldSet>
               <FieldContent className='gap-0 mb-4'>
