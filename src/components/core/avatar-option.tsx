@@ -45,9 +45,9 @@ export default function AvatarOption() {
       />
       <DropdownMenuContent>
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/candidate/profile')}>
             <BadgeCheckIcon />
-            Profile
+            Profile & Resume
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant='destructive' disabled={loading} onClick={handleLogout}>
