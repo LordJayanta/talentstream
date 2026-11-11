@@ -9,14 +9,15 @@ type Props = {
   fallbackWord?: string;
 }
 
-export default function Avatar({src="https://github.com/shadcn.png", fallbackWord='CN'}: Props) {
+export default function Avatar({src, fallbackWord='?'}: Props) {
   return (
     <Av>
-      <AvatarImage
-        src={src}
-        alt="@shadcn"
-        className="grayscale"
-      />
+      {src ? (
+        <AvatarImage
+          src={src}
+          alt={fallbackWord}
+        />
+      ) : null}
       <AvatarFallback>{fallbackWord}</AvatarFallback>
     </Av>
   )

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ interface HREditJobFormProps {
 export default function HREditJobForm({ job }: HREditJobFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState(job.title);
+  const [companyName, setCompanyName] = useState(job.companyName || "");
   const [department, setDepartment] = useState(job.department || "");
   const [location, setLocation] = useState(job.location || "");
   const [employmentType, setEmploymentType] = useState(job.employmentType || "FULL_TIME");
@@ -61,6 +62,7 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
     try {
       const formData = new FormData();
       formData.append("title", title);
+      formData.append("companyName", companyName);
       formData.append("department", department);
       formData.append("location", location);
       formData.append("employmentType", employmentType);
@@ -94,8 +96,9 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
           <ArrowLeft size={14} /> Back to Jobs
         </Link>
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-muted-foreground">Status:</label>
+          <label htmlFor="job-status" className="text-xs font-semibold text-muted-foreground">Status:</label>
           <select
+            id="job-status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             className="h-8 rounded-md border border-input bg-background px-2.5 text-xs font-medium focus:ring-1 focus:ring-primary outline-hidden"
@@ -117,8 +120,9 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold">Job Title</label>
+            <label htmlFor="job-title" className="text-xs font-semibold">Job Title</label>
             <Input
+              id="job-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Senior Software Engineer"
@@ -127,10 +131,22 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
             />
           </div>
 
+          <div className="space-y-1.5">
+            <label htmlFor="job-company" className="text-xs font-semibold">Company Name</label>
+            <Input
+              id="job-company"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="e.g. Acme Corp"
+              className="text-xs"
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold">Department</label>
+              <label htmlFor="job-department" className="text-xs font-semibold">Department</label>
               <Input
+                id="job-department"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 placeholder="e.g. Engineering, Product, Marketing"
@@ -138,8 +154,9 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold">Location</label>
+              <label htmlFor="job-location" className="text-xs font-semibold">Location</label>
               <Input
+                id="job-location"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. San Francisco, CA or Remote"
@@ -150,8 +167,9 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold">Employment Type</label>
+              <label htmlFor="job-employment-type" className="text-xs font-semibold">Employment Type</label>
               <select
+                id="job-employment-type"
                 value={employmentType}
                 onChange={(e) => setEmploymentType(e.target.value)}
                 className="w-full h-9 rounded-md border border-input bg-background px-3 text-xs focus:ring-1 focus:ring-primary outline-hidden"
@@ -163,8 +181,9 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold">Experience Level</label>
+              <label htmlFor="job-experience" className="text-xs font-semibold">Experience Level</label>
               <select
+                id="job-experience"
                 value={experience}
                 onChange={(e) => setExperience(e.target.value)}
                 className="w-full h-9 rounded-md border border-input bg-background px-3 text-xs focus:ring-1 focus:ring-primary outline-hidden"
@@ -180,8 +199,9 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold">Minimum Salary ($ / year)</label>
+              <label htmlFor="job-min-salary" className="text-xs font-semibold">Minimum Salary ($ / year)</label>
               <Input
+                id="job-min-salary"
                 type="number"
                 value={minSalary}
                 onChange={(e) => setMinSalary(e.target.value)}
@@ -190,8 +210,9 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold">Maximum Salary ($ / year)</label>
+              <label htmlFor="job-max-salary" className="text-xs font-semibold">Maximum Salary ($ / year)</label>
               <Input
+                id="job-max-salary"
                 type="number"
                 value={maxSalary}
                 onChange={(e) => setMaxSalary(e.target.value)}
@@ -210,6 +231,7 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
         </CardHeader>
         <CardContent>
           <Textarea
+            aria-label="Job Description"
             rows={8}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -242,7 +264,11 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
               {mustHaveSkills.map((skill) => (
                 <Badge key={skill} variant="secondary" className="text-xs gap-1">
                   {skill}
-                  <button type="button" onClick={() => setMustHaveSkills(mustHaveSkills.filter((s) => s !== skill))}>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${skill} skill`}
+                    onClick={() => setMustHaveSkills(mustHaveSkills.filter((s) => s !== skill))}
+                  >
                     <X size={12} />
                   </button>
                 </Badge>
@@ -271,7 +297,11 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
               {niceToHaveSkills.map((skill) => (
                 <Badge key={skill} variant="outline" className="text-xs gap-1">
                   {skill}
-                  <button type="button" onClick={() => setNiceToHaveSkills(niceToHaveSkills.filter((s) => s !== skill))}>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${skill} skill`}
+                    onClick={() => setNiceToHaveSkills(niceToHaveSkills.filter((s) => s !== skill))}
+                  >
                     <X size={12} />
                   </button>
                 </Badge>
@@ -282,10 +312,8 @@ export default function HREditJobForm({ job }: HREditJobFormProps) {
       </div>
 
       <div className="flex justify-end gap-3 pt-4">
-        <Link href="/hr/job">
-          <Button type="button" variant="outline">
-            Cancel
-          </Button>
+        <Link href="/hr/job" className={buttonVariants({ variant: "outline" })}>
+          Cancel
         </Link>
         <Button type="submit" disabled={isSubmitting} className="gap-2">
           {isSubmitting ? (

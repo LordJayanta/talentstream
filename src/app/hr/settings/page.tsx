@@ -1,8 +1,6 @@
 import HRHeader from "@/components/hr-sections/hr-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Bell, Sparkles } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CheckCircle2, Sparkles } from "lucide-react";
 
 export default function HRSettingsPage() {
   return (
@@ -12,11 +10,10 @@ export default function HRSettingsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Configure matching rules, notifications, and default pipeline preferences.
+            Matching rules currently applied across the recruitment pipeline.
           </p>
         </div>
 
-        {/* AI Matching Rules */}
         <Card className="rounded-xl shadow-xs">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center gap-2">
@@ -24,7 +21,7 @@ export default function HRSettingsPage() {
               AI Matching Engine Preferences
             </CardTitle>
             <CardDescription className="text-xs">
-              Define how applicant scores are calculated and highlighted in your pipeline.
+              These rules are applied automatically to every applicant score.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -32,59 +29,26 @@ export default function HRSettingsPage() {
               <div className="space-y-0.5">
                 <p className="font-semibold text-xs text-foreground">Auto-Highlight Exceptional Matches</p>
                 <p className="text-[11px] text-muted-foreground">
-                  Highlight candidates with match score over 85% with an exceptional badge.
+                  Candidates with a match score over 85% are highlighted in the pipeline.
                 </p>
               </div>
-              <Switch defaultChecked />
+              <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                <CheckCircle2 size={16} /> Active
+              </span>
             </div>
 
             <div className="flex items-center justify-between p-3 border rounded-lg bg-card">
               <div className="space-y-0.5">
                 <p className="font-semibold text-xs text-foreground">Prioritize Must-Have Skills Weighting</p>
                 <p className="text-[11px] text-muted-foreground">
-                  Give 75% score weight to must-have skills and 25% to nice-to-have skills.
+                  Must-have skills carry 75% of the score and nice-to-have skills the remaining 25%.
                 </p>
               </div>
-              <Switch defaultChecked />
+              <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                <CheckCircle2 size={16} /> Active
+              </span>
             </div>
           </CardContent>
-        </Card>
-
-        {/* Notifications */}
-        <Card className="rounded-xl shadow-xs">
-          <CardHeader>
-            <CardTitle className="text-base font-bold flex items-center gap-2">
-              <Bell size={18} className="text-primary" />
-              Notifications & Alerts
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Configure when you receive notifications about incoming applicants.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 border rounded-lg bg-card">
-              <div className="space-y-0.5">
-                <p className="font-semibold text-xs text-foreground">Instant Application Notification</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Notify hiring team immediately when a candidate applies.
-                </p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-
-            <div className="flex items-center justify-between p-3 border rounded-lg bg-card">
-              <div className="space-y-0.5">
-                <p className="font-semibold text-xs text-foreground">Daily Candidate Digest</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Receive a daily summary of all new candidate applications across your jobs.
-                </p>
-              </div>
-              <Switch />
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-end pt-2">
-            <Button size="sm">Save Preferences</Button>
-          </CardFooter>
         </Card>
       </main>
     </div>

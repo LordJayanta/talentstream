@@ -130,6 +130,7 @@ export async function updateJobAction(id: string, formData: FormData) {
     const description = rawDesc || "No detailed description provided.";
     const location = (formData.get("location") as string)?.trim() || "Remote";
     const experience = (formData.get("experience") as string) || "Not specified";
+    const companyName = (formData.get("companyName") as string)?.trim();
     const companyBenefits = formData.get("companyBenefits") as string;
     const department = (formData.get("department") as string) || "General";
     const employmentType = (formData.get("employmentType") as string) || "FULL_TIME";
@@ -156,6 +157,7 @@ export async function updateJobAction(id: string, formData: FormData) {
         department,
         employmentType,
         status,
+        ...(companyName && { companyName }),
         ...(companyBenefits !== null && {
           companyBenefits: parseArrayOfStrings(companyBenefits),
         }),
