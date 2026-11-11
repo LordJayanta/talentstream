@@ -61,7 +61,7 @@ export async function createJobAction(formData: FormData) {
     const companyBenefits = formData.get("companyBenefits") as string;
     const mustHaveSkills = formData.get("mustHaveSkills") as string;
     const niceToHaveSkills = formData.get("niceToHaveSkills") as string;
-    const companyName = (formData.get("companyName") as string)?.trim() || session?.user?.name || "TalentStream";
+    const companyName = (formData.get("companyName") as string)?.trim() || "TalentStream";
 
     if (!title) {
       return { success: false, message: "Job title is required." };

@@ -28,6 +28,7 @@ export default function Page() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [title, setTitle] = useState<string>('');
+  const [companyName, setCompanyName] = useState<string>('');
   const [minSalary, setMinSalary] = useState<string>('');
   const [maxSalary, setMaxSalary] = useState<string>('');
   const [department, setDepartment] = useState<string>('');
@@ -79,6 +80,7 @@ export default function Page() {
 
     const formData = new FormData();
     formData.append("title", title);
+    formData.append("companyName", companyName.trim() || "TalentStream");
     formData.append("description", description || "No detailed description provided.");
     formData.append("minSalary", minSalary);
     formData.append("maxSalary", maxSalary);
@@ -109,7 +111,7 @@ export default function Page() {
   return (
     <div>
       <HRHeader title='Create New Job' />
-      <main className='py-6 px-12'>
+      <main className='py-6 px-4 sm:px-6 lg:px-12'>
         {/* Basic Information */}
         <FieldSet className='space-y-6 mb-12'>
           <JobInputCard title='Basic Information' icon={<Info size={20} />}>
@@ -121,6 +123,13 @@ export default function Page() {
                   className='col-span-6'
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                />
+                <FieldInput
+                  label='Company Name'
+                  placeholder='e.g. Acme Corp'
+                  className='col-span-6'
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
                 />
                 <FieldInput
                   label='Department'
@@ -208,7 +217,7 @@ export default function Page() {
                 />
                 <FieldSet className='col-span-4'>
                   <FieldLegend variant="label" className='text-zinc-600'>Company Benefits</FieldLegend>
-                  <FieldGroup className='grid grid-cols-4 gap-x-2 gap-y-2'>
+                  <FieldGroup className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-2 gap-y-2'>
                     {
                       companyBenefits.map((benefit) => (
                         <div key={benefit.id} className='col-span-1 p-3 border rounded-lg'>
@@ -232,9 +241,6 @@ export default function Page() {
           <JobInputCard
             title='Job Description'
             icon={<Banknote size={20} />}
-            action={
-              <Button type="button" variant="default" size={'sm'} className={'rounded-full'}>Action</Button>
-            }
           >
             <EditorClient
               editorRef={editorRef}
@@ -269,23 +275,20 @@ export default function Page() {
           </JobInputCard>
 
 
-          <FieldGroup className='px-6 py-4 bg-accent-foreground rounded-[16px]'>
-            <Field orientation="horizontal" className='flex justify-between'>
+          <FieldGroup className='px-4 sm:px-6 py-4 bg-accent-foreground rounded-[16px]'>
+            <Field orientation="horizontal" className='flex flex-col sm:flex-row sm:justify-between gap-4'>
               <div className='flex gap-2 justify-center text-zinc-500'>
                 <div>
                   <CloudBackup size={20} />
                 </div>
-                <FieldDescription className='text-base font-normal text-zinc-600'>Draft auto-saved 2 mins ago</FieldDescription>
+                <FieldDescription className='text-base font-normal text-zinc-600'>Fields are saved when you publish.</FieldDescription>
               </div>
               <div className='flex gap'>
-                <Button type="button" variant="ghost" size={'lg'} className={'px-8 py-3 hover:bg-transparent text-zinc-500 hover:text-zinc-600 text-base'}>
-                  Save for later
-                </Button>
                 <Button
                   type="button"
                   size={'lg'}
                   disabled={isSubmitting}
-                  className={'px-8'}
+                  className={'px-8 w-full sm:w-auto'}
                   onClick={(e) => handleSubmit(e)}
                 >
                   {isSubmitting ? "Publishing..." : "Publish Job Vacancy"}
