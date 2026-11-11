@@ -13,7 +13,9 @@ export default async function Page({ searchParams }: PageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const initialJobId = resolvedSearchParams?.jobId;
 
-  const { applications } = await getEmployerApplicationsAction(initialJobId);
+  // Fetch all employer applications; the client filters by job so switching
+  // the dropdown does not depend on a server round-trip.
+  const { applications } = await getEmployerApplicationsAction();
   const { jobs } = await getEmployerJobsAction();
 
   const formattedJobs = (jobs || []).map((j) => ({

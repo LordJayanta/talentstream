@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -67,6 +67,19 @@ export default function HRCandidatePipeline({
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [activeAppDetails, setActiveAppDetails] = useState<PipelineApplication | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    if (!activeAppDetails) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActiveAppDetails(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [activeAppDetails]);
 
   const filteredApps = initialApplications.filter((app) => {
     if (selectedJob !== "all" && app.jobId !== selectedJob) return false;
@@ -148,7 +161,6 @@ export default function HRCandidatePipeline({
           <TableBody>
             {filteredApps.length > 0 ? (
               filteredApps.map((app) => {
-                const match = app.matchScore ?? 75;
                 const statusMeta = STATUS_VARIANTS[app.status] || {
                   label: app.status,
                   badgeVariant: "secondary" as const,
@@ -179,19 +191,23 @@ export default function HRCandidatePipeline({
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Badge
-                        variant="secondary"
-                        className={`text-xs gap-1 font-semibold ${
-                          match >= 85
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                            : match >= 70
-                            ? "bg-primary/10 text-primary border-primary/20"
-                            : "bg-amber-50 text-amber-700"
-                        }`}
-                      >
-                        <Sparkles size={11} />
-                        {match}%
-                      </Badge>
+                      {app.matchScore != null ? (
+                        <Badge
+                          variant="secondary"
+                          className={`text-xs gap-1 font-semibold ${
+                            app.matchScore >= 85
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                              : app.matchScore >= 70
+                              ? "bg-primary/10 text-primary border-primary/20"
+                              : "bg-amber-50 text-amber-700"
+                          }`}
+                        >
+                          <Sparkles size={11} />
+                          {app.matchScore}%
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </TableCell>
 
                     <TableCell className="text-center">
@@ -289,8 +305,19 @@ export default function HRCandidatePipeline({
 
       {/* Application Details Modal */}
       {activeAppDetails && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-card border rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setActiveAppDetails(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Application details for ${activeAppDetails.applicantName}`}
+            className="bg-card border rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-xl"
+          >
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-bold text-lg">{activeAppDetails.applicantName}</h3>
@@ -300,6 +327,7 @@ export default function HRCandidatePipeline({
               </div>
               <button
                 type="button"
+                aria-label="Close application details"
                 onClick={() => setActiveAppDetails(null)}
                 className="text-muted-foreground hover:text-foreground text-sm"
               >
