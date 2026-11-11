@@ -16,8 +16,8 @@ export const candidateProfilesTable = pgTable("candidate_profiles", {
   resumeUrl: text("resume_url"), // URL or path to uploaded resume file
   resumeFileName: text("resume_file_name"),
   resumeText: text("resume_text"), // Extracted or pasted resume text
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),

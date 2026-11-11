@@ -25,7 +25,7 @@ export const jobsTable = pgTable("jobs", {
   mustHaveSkills: text("must_have_skills").array(),
   niceToHaveSkills: text("Nice_to_have_skills").array(),
   status: text("status").default("active").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type InsertJob = typeof jobsTable.$inferInsert;

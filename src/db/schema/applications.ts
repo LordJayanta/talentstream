@@ -21,7 +21,7 @@ export const jobApplicationsTable = pgTable("job_applications", {
     .default("pending")
     .notNull(),
   matchScore: integer("match_score").default(0),
-  appliedAt: timestamp("applied_at").defaultNow().notNull(),
+  appliedAt: timestamp("applied_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type InsertJobApplication = typeof jobApplicationsTable.$inferInsert;

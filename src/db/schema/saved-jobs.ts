@@ -13,7 +13,7 @@ export const savedJobsTable = pgTable(
     jobId: uuid("job_id")
       .notNull()
       .references(() => jobsTable.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     uniqueIndex("saved_jobs_user_job_idx").on(table.userId, table.jobId),
