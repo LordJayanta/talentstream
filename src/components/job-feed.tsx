@@ -17,12 +17,14 @@ interface JobFeedProps {
   initialJobs?: JobCardData[];
   initialFilters?: JobFilterOptions;
   viewerRole?: string | null;
+  refreshKey?: number;
 }
 
 export default function JobFeed({
   initialJobs = [],
   initialFilters,
   viewerRole,
+  refreshKey = 0,
 }: JobFeedProps) {
   const [jobs, setJobs] = useState<JobCardData[]>(initialJobs);
   const [sortBy, setSortBy] = useState<"match" | "newest">(
@@ -58,6 +60,7 @@ export default function JobFeed({
     initialFilters?.minSalary,
     initialFilters?.maxSalary,
     sortBy,
+    refreshKey,
   ]);
 
   const handleSortChange = (newSort: "match" | "newest") => {

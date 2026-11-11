@@ -99,7 +99,7 @@ export async function updateCandidateProfileAction(formData: FormData) {
           bio: bio ?? existing.bio,
           location: location ?? existing.location,
           experienceLevel: experienceLevel ?? existing.experienceLevel,
-          skills: skills.length > 0 ? skills : existing.skills,
+          skills,
           resumeUrl: resumeUrl ?? existing.resumeUrl,
           resumeFileName: resumeFileName ?? existing.resumeFileName,
           resumeText: resumeText ?? existing.resumeText,
@@ -119,9 +119,14 @@ export async function updateCandidateProfileAction(formData: FormData) {
       });
     }
 
-    revalidatePath("/profile");
+    revalidatePath("/candidate/profile");
     revalidatePath("/");
-    return { success: true, message: "Profile & Resume updated successfully!" };
+    return {
+      success: true,
+      message: "Profile & Resume updated successfully!",
+      resumeUrl: resumeUrl ?? existing.resumeUrl,
+      resumeFileName: resumeFileName ?? existing.resumeFileName,
+    };
   } catch (error) {
     console.error("Failed to update candidate profile:", error);
     return { success: false, message: "Failed to update profile." };
@@ -135,6 +140,10 @@ export async function applyJobAction(jobId: string, coverLetter?: string) {
 
   if (!session?.user) {
     return { success: false, message: "Please log in to apply for this job." };
+  }
+
+  if (session.user.role !== "candidate") {
+    return { success: false, message: "Only candidate accounts can apply for jobs." };
   }
 
   try {
@@ -315,6 +324,10 @@ export async function autoApplyTopMatchesAction(minMatchScore: number = 85) {
 
   if (!session?.user) {
     return { success: false, message: "Please log in as a candidate to use Auto-Apply." };
+  }
+
+  if (session.user.role !== "candidate") {
+    return { success: false, message: "Only candidate accounts can use Auto-Apply." };
   }
 
   try {

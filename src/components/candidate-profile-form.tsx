@@ -24,10 +24,15 @@ export default function CandidateProfileForm({
   const [bio, setBio] = useState(initialProfile?.bio || "");
   const [location, setLocation] = useState(initialProfile?.location || "");
   const [experienceLevel, setExperienceLevel] = useState(initialProfile?.experienceLevel || "3-5 years");
-  const [skills, setSkills] = useState<string[]>(initialProfile?.skills || ["React", "TypeScript", "Next.js"]);
+  const [skills, setSkills] = useState<string[]>(initialProfile?.skills || []);
   const [resumeText, setResumeText] = useState(initialProfile?.resumeText || "");
   const [newSkill, setNewSkill] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
+  const [currentResume, setCurrentResume] = useState<{ url?: string | null; name?: string | null }>({
+    url: initialProfile?.resumeUrl,
+    name: initialProfile?.resumeFileName,
+  });
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -82,6 +87,13 @@ export default function CandidateProfileForm({
       if (res.success) {
         setSavedSuccess(true);
         setTimeout(() => setSavedSuccess(false), 3000);
+        if (res.resumeUrl) {
+          setCurrentResume({ url: res.resumeUrl, name: res.resumeFileName });
+        }
+        if (resumeFile) {
+          setResumeFile(null);
+          setFileInputKey((key) => key + 1);
+        }
         alert("Profile and Resume updated successfully! Job match scores have been recalculated.");
       } else {
         alert(res.message);
@@ -265,16 +277,16 @@ export default function CandidateProfileForm({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {initialProfile?.resumeUrl && (
+          {currentResume.url && (
             <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
               <div className="flex items-center gap-2.5">
                 <FileText size={20} className="text-primary" />
                 <div>
                   <p className="text-xs font-semibold">
-                    {initialProfile.resumeFileName || "Uploaded Resume.pdf"}
+                    {currentResume.name || "Uploaded Resume.pdf"}
                   </p>
                   <a
-                    href={initialProfile.resumeUrl}
+                    href={currentResume.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11px] text-primary hover:underline"
@@ -296,6 +308,7 @@ export default function CandidateProfileForm({
               Supports PDF, DOC, DOCX up to 10MB
             </p>
             <input
+              key={fileInputKey}
               type="file"
               accept=".pdf,.doc,.docx"
               onChange={(e) => {

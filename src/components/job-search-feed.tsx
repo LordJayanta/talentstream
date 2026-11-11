@@ -31,14 +31,25 @@ export default function JobSearchFeed({ initialJobs = [], viewerRole }: JobSearc
   const [minSalary, setMinSalary] = useState<string>("");
   const [maxSalary, setMaxSalary] = useState<string>("");
   const [isAutoApplying, setIsAutoApplying] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [appliedFilters, setAppliedFilters] = useState<JobFilterOptions>({});
 
   const handleAutoApply = async () => {
+    if (
+      !confirm(
+        "Apply to every open role where you match 85% or higher? This cannot be undone."
+      )
+    ) {
+      return;
+    }
     setIsAutoApplying(true);
     try {
       const res = await autoApplyTopMatchesAction(85);
       alert(res.message);
+      if (res.success) {
+        setRefreshKey((key) => key + 1);
+      }
     } catch {
       alert("Please sign in as a candidate to use Auto-Apply.");
     } finally {
@@ -306,7 +317,12 @@ export default function JobSearchFeed({ initialJobs = [], viewerRole }: JobSearc
 
         {/* Job Listings Column */}
         <div className="col-span-1 md:col-span-3">
-          <JobFeed initialJobs={initialJobs} initialFilters={appliedFilters} viewerRole={viewerRole} />
+          <JobFeed
+            initialJobs={initialJobs}
+            initialFilters={appliedFilters}
+            viewerRole={viewerRole}
+            refreshKey={refreshKey}
+          />
         </div>
       </section>
     </>
