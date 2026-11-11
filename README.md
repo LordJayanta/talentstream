@@ -137,6 +137,10 @@ bun run db:push
 # 2. Import comprehensive demo data (employer, candidate, 6 jobs, applications)
 bun run seed
 # or: bun run:seed
+
+# 3. (Optional) Reset or remove all demo data anytime
+bun run clean
+# or: bun run db:reset (cleans and re-seeds fresh data)
 ```
 
 ---
@@ -172,7 +176,8 @@ After running `bun run seed`, you can immediately test both user experiences:
 talentstream/
 ├── scripts/
 │   ├── setup-db.sh           # Shell script to initialize local PostgreSQL
-│   └── seed.ts               # Demo data seeder (accounts, jobs, applications)
+│   ├── seed.ts               # Demo data seeder (accounts, jobs, applications)
+│   └── clean.ts              # Demo data cleanup script
 ├── public/
 │   └── uploads/resumes/      # Storage directory for candidate resume files
 ├── src/
@@ -238,6 +243,10 @@ talentstream/
 | `bun run db:push` | Pushes Drizzle schemas to the PostgreSQL database |
 | `bun run seed` | Seeds demo employer, candidate, jobs, and applications |
 | `bun run:seed` | Alias for `bun run seed` |
+| `bun run clean` | Cleans all demo accounts, sample jobs, applications, and saved jobs |
+| `bun run:clean` | Alias for `bun run clean` |
+| `bun run db:clean` | Alias for `bun run clean` |
+| `bun run db:reset` | Cleans and immediately re-seeds fresh demo data |
 
 ---
 
