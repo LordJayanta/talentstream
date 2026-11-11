@@ -355,12 +355,26 @@ export async function getJobByIdAction(id: string) {
       job.niceToHaveSkills ?? []
     );
 
+    let employerName: string | null = null;
+    let employerImage: string | null = null;
+    if (job.employerId) {
+      const [employer] = await db
+        .select({ name: user.name, image: user.image })
+        .from(user)
+        .where(eq(user.id, job.employerId))
+        .limit(1);
+      employerName = employer?.name ?? null;
+      employerImage = employer?.image ?? null;
+    }
+
     return {
       success: true,
       job,
       hasApplied,
       isSaved,
       matchAnalysis,
+      employerName,
+      employerImage,
       isOwner: session?.user?.id === job.employerId,
       viewerRole: (session?.user as { role?: string } | undefined)?.role ?? null,
     };

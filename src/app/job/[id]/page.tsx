@@ -1,23 +1,30 @@
 import Header from "@/components/core/header";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BanknoteCheck,
   BriefcaseBusiness,
-  Building2,
-  CheckCircle,
+  CheckCircle2,
   Clock,
-  Dot,
+  Clock3,
+  GraduationCap,
+  HeartPulse,
+  Laptop,
   MapPin,
   Sparkles,
-  XCircle,
+  TrainFront,
+  TreePalm,
+  TrendingUp,
+  Users,
+  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getJobByIdAction } from "@/actions/job-actions";
 import JobDetailActions from "@/components/job-detail-actions";
 import JobDescription from "@/components/job-description";
+import { parseJobDescription } from "@/lib/job-description";
 import { formatEmploymentType, timeAgo } from "@/lib/utils";
 
 interface PageProps {
@@ -37,6 +44,23 @@ function formatSalary(min?: number | null, max?: number | null) {
   return `Up to $${max! >= 1000 ? Math.round(max! / 1000) + "k" : max} / year`;
 }
 
+const BENEFIT_ICONS: Array<[RegExp, LucideIcon]> = [
+  [/health|dental|vision|wellbeing|insurance/i, HeartPulse],
+  [/401|equity|bonus|pension|matching/i, TrendingUp],
+  [/learning|education|course|budget/i, GraduationCap],
+  [/vacation|pto|time off|holiday/i, TreePalm],
+  [/home office|remote|equipment|stipend/i, Laptop],
+  [/commut|transport|travel/i, TrainFront],
+  [/mentor|team|community|culture/i, Users],
+  [/hours|schedule/i, Clock3],
+];
+
+function BenefitIcon({ label }: { label: string }) {
+  const match = BENEFIT_ICONS.find(([pattern]) => pattern.test(label));
+  const Icon = match?.[1] ?? Sparkles;
+  return <Icon size={20} className="text-primary" />;
+}
+
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
   const result = await getJobByIdAction(id);
@@ -45,53 +69,63 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
-  const { job, hasApplied, isSaved, matchAnalysis, isOwner, viewerRole } = result;
+  const { job, hasApplied, isSaved, matchAnalysis, employerName, employerImage, isOwner, viewerRole } =
+    result;
 
-  const mustHaveSkills = job.mustHaveSkills ?? [];
-  const niceToHaveSkills = job.niceToHaveSkills ?? [];
+  const companyName = job.companyName || "TalentStream";
+  const companyInitial = companyName.charAt(0).toUpperCase();
+  const shortCompanyName = companyName.split(/\s+/)[0] || companyName;
+
+  const { about, responsibilities } = parseJobDescription(job.description);
+  const mustHaveSkills = (job.mustHaveSkills ?? []).filter(Boolean);
+  const niceToHaveSkills = (job.niceToHaveSkills ?? []).filter(Boolean);
+  const hasRequirements = mustHaveSkills.length > 0 || niceToHaveSkills.length > 0;
   const benefits = (job.companyBenefits as unknown as { id: string; label: string }[]) ?? [];
+
+  const scoreTone =
+    matchAnalysis.score >= 80
+      ? { border: "border-emerald-500", text: "text-emerald-700" }
+      : matchAnalysis.score >= 60
+        ? { border: "border-primary", text: "text-primary" }
+        : { border: "border-amber-500", text: "text-amber-700" };
+
+  const hiringContact = employerName || companyName;
+  const hiringInitial = hiringContact.charAt(0).toUpperCase();
 
   return (
     <div className="min-h-screen bg-accent/40">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <main className="lg:col-span-8 space-y-6">
-            {/* Job Details Header */}
-            <Card className="rounded-xl shadow-xs">
-              <CardHeader className="gap-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl shrink-0">
-                      <Building2 size={32} />
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <main className="space-y-6 lg:col-span-8">
+            {/* Job header */}
+            <Card className="gap-0 rounded-xl py-0">
+              <div className="p-6 sm:p-7">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-4">
+                    <div className="flex size-16 shrink-0 items-center justify-center rounded-xl border bg-muted/40 text-2xl font-bold text-primary sm:size-20">
+                      {companyInitial}
                     </div>
-                    <div>
-                      <CardTitle>
-                        <h1 className="font-bold text-2xl sm:text-3xl tracking-tight">
-                          {job.title}
-                        </h1>
-                      </CardTitle>
-
-                      <CardDescription className="flex flex-wrap items-center gap-2 mt-1.5 text-sm">
-                        <span className="font-semibold text-foreground">
-                          {job.companyName || "TalentStream"}
-                        </span>
-                        <Dot className="text-muted-foreground" />
-                        <span className="flex items-center gap-1 text-muted-foreground">
+                    <div className="min-w-0">
+                      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{job.title}</h1>
+                      <p className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-muted-foreground">
+                        <span className="font-semibold text-foreground">{companyName}</span>
+                        <span aria-hidden="true">·</span>
+                        <span className="inline-flex items-center gap-1">
                           <MapPin size={14} />
                           {job.location || "Remote"}
                         </span>
                         {job.department && (
                           <>
-                            <Dot className="text-muted-foreground" />
-                            <span className="text-muted-foreground">{job.department}</span>
+                            <span aria-hidden="true">·</span>
+                            <span>{job.department}</span>
                           </>
                         )}
-                      </CardDescription>
+                      </p>
                     </div>
                   </div>
 
-                  <CardAction>
+                  <div className="shrink-0">
                     <JobDetailActions
                       jobId={job.id}
                       initialApplied={hasApplied}
@@ -99,197 +133,220 @@ export default async function Page({ params }: PageProps) {
                       isOwner={isOwner}
                       viewerRole={viewerRole}
                     />
-                  </CardAction>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2.5 pt-2 border-t">
-                  <Badge variant="secondary" className="px-3 py-1 text-xs">
-                    <BriefcaseBusiness size={14} className="mr-1.5" />
+                <div className="mt-5 flex flex-wrap gap-2 border-t pt-4">
+                  <Badge variant="outline" className="rounded-full px-3 py-1.5">
+                    <BriefcaseBusiness size={14} className="mr-1" />
                     {formatEmploymentType(job.employmentType)}
                   </Badge>
-                  <Badge variant="secondary" className="px-3 py-1 text-xs">
-                    <BanknoteCheck size={14} className="mr-1.5" />
+                  <Badge variant="outline" className="rounded-full px-3 py-1.5">
+                    <BanknoteCheck size={14} className="mr-1" />
                     {formatSalary(job.minSalary, job.maxSalary)}
                   </Badge>
-                  <Badge variant="secondary" className="px-3 py-1 text-xs">
-                    <Clock size={14} className="mr-1.5" />
+                  <Badge variant="outline" className="rounded-full px-3 py-1.5">
+                    <Clock size={14} className="mr-1" />
                     Posted {timeAgo(job.createdAt)}
                   </Badge>
                   {job.experience && (
-                    <Badge variant="secondary" className="px-3 py-1 text-xs">
-                      <Sparkles size={14} className="mr-1.5" />
+                    <Badge variant="outline" className="rounded-full px-3 py-1.5">
+                      <Sparkles size={14} className="mr-1" />
                       {job.experience} yrs exp
                     </Badge>
                   )}
                 </div>
-              </CardHeader>
+              </div>
             </Card>
 
-            {/* Job Description */}
-            <Card className="rounded-xl shadow-xs">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold">About the Role</CardTitle>
-              </CardHeader>
-              <CardContent className="max-w-none">
-                <JobDescription markdown={job.description} />
-              </CardContent>
-            </Card>
-
-            {/* Required & Nice-to-Have Skills */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="rounded-xl shadow-xs">
-                <CardHeader>
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-                    Must-Have Skills
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {mustHaveSkills.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {mustHaveSkills.map((skill, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs px-2.5 py-1">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">General qualifications apply.</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-xl shadow-xs">
-                <CardHeader>
-                  <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground" />
-                    Nice-to-Have Skills
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {niceToHaveSkills.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {niceToHaveSkills.map((skill, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs px-2.5 py-1">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">No extra preferences listed.</p>
-                  )}
-                </CardContent>
-              </Card>
-            </section>
-
-            {/* Benefits & Perks */}
-            {benefits.length > 0 && (
-              <Card className="rounded-xl shadow-xs">
-                <CardHeader>
-                  <CardTitle className="text-lg font-bold">Benefits & Perks</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {benefits.map((benefit, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-3 p-3 rounded-lg border bg-card/50 text-sm"
-                      >
-                        <Sparkles size={16} className="text-primary shrink-0" />
-                        <span className="font-medium">{benefit.label || String(benefit)}</span>
-                      </div>
-                    ))}
+            {/* About the role */}
+            {about && (
+              <Card className="gap-0 rounded-xl py-0">
+                <div className="p-6 sm:p-7">
+                  <h2 className="text-xl font-bold tracking-tight">About the Role</h2>
+                  <div className="mt-4">
+                    <JobDescription markdown={about} />
                   </div>
-                </CardContent>
+                </div>
+              </Card>
+            )}
+
+            {/* Responsibilities and requirements */}
+            {(responsibilities.length > 0 || hasRequirements) && (
+              <section
+                className={
+                  responsibilities.length > 0 && hasRequirements
+                    ? "grid grid-cols-1 gap-6 md:grid-cols-2"
+                    : "grid grid-cols-1 gap-6"
+                }
+              >
+                {responsibilities.length > 0 && (
+                  <Card className="gap-0 rounded-xl py-0">
+                    <div className="p-6">
+                      <h2 className="text-xl font-bold tracking-tight">Key Responsibilities</h2>
+                      <ul className="mt-4 space-y-3">
+                        {responsibilities.map((item, index) => (
+                          <li
+                            key={`${item}-${index}`}
+                            className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/80"
+                          >
+                            <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-primary" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </Card>
+                )}
+
+                {hasRequirements && (
+                  <Card className="gap-0 rounded-xl py-0">
+                    <div className="p-6">
+                      <h2 className="text-xl font-bold tracking-tight">Requirements</h2>
+
+                      {mustHaveSkills.length > 0 && (
+                        <div className="mt-4">
+                          <h3 className="text-[11px] font-semibold tracking-wide text-foreground uppercase">
+                            Must-Haves
+                          </h3>
+                          <ul className="mt-2 space-y-2 border-l-2 border-primary/70 pl-3 text-sm leading-relaxed text-foreground/80">
+                            {mustHaveSkills.map((skill, index) => (
+                              <li key={`${skill}-${index}`}>{skill}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {niceToHaveSkills.length > 0 && (
+                        <div className={mustHaveSkills.length > 0 ? "mt-5" : "mt-4"}>
+                          <h3 className="text-[11px] font-semibold tracking-wide text-foreground uppercase">
+                            Nice-to-Haves
+                          </h3>
+                          <ul className="mt-2 space-y-2 border-l-2 border-border pl-3 text-sm leading-relaxed text-foreground/80">
+                            {niceToHaveSkills.map((skill, index) => (
+                              <li key={`${skill}-${index}`}>{skill}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                )}
+              </section>
+            )}
+
+            {/* Benefits */}
+            {benefits.length > 0 && (
+              <Card className="gap-0 rounded-xl py-0">
+                <div className="p-6 sm:p-7">
+                  <h2 className="text-xl font-bold tracking-tight">Life at {shortCompanyName}</h2>
+                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {benefits.map((benefit, index) => {
+                      const label = benefit.label || String(benefit);
+                      return (
+                        <div
+                          key={`${label}-${index}`}
+                          className="rounded-lg border bg-muted/30 p-5"
+                        >
+                          <BenefitIcon label={label} />
+                          <h3 className="mt-3 text-sm font-semibold">{label}</h3>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </Card>
             )}
           </main>
 
-          {/* Right Sidebar - Match Breakdown & Hiring Info */}
-          <aside className="lg:col-span-4 space-y-6">
-            {/* Match Breakdown Card */}
+          {/* Sidebar */}
+          <aside className="space-y-6 lg:col-span-4">
             {viewerRole === "candidate" && (
-              <Card className="rounded-xl shadow-xs border-primary/20">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
+              <Card className="gap-0 rounded-xl bg-primary/[0.035] py-0 ring-primary/15">
+                <div className="p-6">
                   <div className="flex items-center gap-2">
                     <Sparkles size={18} className="text-primary" />
-                    <CardTitle className="text-base font-bold">AI Match Breakdown</CardTitle>
+                    <h2 className="text-lg font-bold">AI Match Breakdown</h2>
                   </div>
-                  <div
-                    className={`px-2.5 py-1 rounded-md text-xs font-bold border ${
-                      matchAnalysis.score >= 80
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                        : matchAnalysis.score >= 60
-                        ? "bg-primary/10 text-primary border-primary/30"
-                        : "bg-amber-50 text-amber-700 border-amber-300"
-                    }`}
-                  >
-                    {matchAnalysis.score}% Match
-                  </div>
-                </div>
-                <CardDescription className="text-xs text-muted-foreground">
-                  {matchAnalysis.label} based on your candidate profile and skills.
-                </CardDescription>
-              </CardHeader>
-              <Separator />
-              <CardContent className="space-y-3 pt-4 text-xs">
-                <div className="space-y-2">
-                  <h6 className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider">
-                    Skills Comparison
-                  </h6>
-                  {matchAnalysis.skills.length > 0 ? (
-                    <div className="space-y-1.5">
-                      {matchAnalysis.skills.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between">
-                          <span className="text-foreground/90">{item.skill}</span>
-                          {item.matched ? (
-                            <span className="flex items-center gap-1 text-emerald-600 font-medium text-[11px]">
-                              <CheckCircle size={13} />
-                              Matched
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-muted-foreground text-[11px]">
-                              <XCircle size={13} />
-                              Missing
-                            </span>
-                          )}
-                        </div>
-                      ))}
+
+                  <div className="mt-4 flex items-center gap-4">
+                    <div
+                      className={`flex size-18 shrink-0 items-center justify-center rounded-xl border-2 bg-card ${scoreTone.border}`}
+                    >
+                      <span className={`text-2xl font-bold ${scoreTone.text}`}>
+                        {matchAnalysis.score}%
+                      </span>
                     </div>
+                    <div>
+                      <p className={`font-semibold ${scoreTone.text}`}>{matchAnalysis.label}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Based on your candidate profile and skills.
+                      </p>
+                    </div>
+                  </div>
+
+                  <h3 className="mt-6 text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+                    Skills Comparison
+                  </h3>
+                  {matchAnalysis.skills.length > 0 ? (
+                    <ul className="mt-3 space-y-2.5 text-sm">
+                      {matchAnalysis.skills.map((item, index) => (
+                        <li key={`${item.skill}-${index}`} className="flex items-center justify-between gap-3">
+                          <span className="flex items-center gap-2 text-foreground/90">
+                            <span
+                              aria-hidden="true"
+                              className={`size-2 rounded-full ${
+                                item.matched ? "bg-emerald-500" : "bg-muted-foreground/40"
+                              }`}
+                            />
+                            {item.skill}
+                          </span>
+                          <span
+                            className={`text-xs font-semibold ${
+                              item.matched ? "text-emerald-700" : "text-muted-foreground"
+                            }`}
+                          >
+                            {item.matched ? "100%" : "Not Found"}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   ) : (
-                    <p className="text-muted-foreground text-xs">
-                      Update your candidate profile with skills to see matching breakdown.
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Add skills to your profile to see a matching breakdown.
                     </p>
                   )}
+
+                  <Link
+                    href="/candidate/profile"
+                    className="mt-5 inline-block text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"
+                  >
+                    Update profile to improve match score
+                  </Link>
                 </div>
-              </CardContent>
-              <CardFooter className="pt-2">
-                <Link href="/candidate/profile" className="w-full">
-                  <span className="text-xs text-primary hover:underline text-center block">
-                    Update profile to improve match score →
-                  </span>
-                </Link>
-              </CardFooter>
               </Card>
             )}
 
-            {/* Hiring Team Info */}
-            <Card className="rounded-xl shadow-xs">
-              <CardHeader>
-                <CardTitle className="text-base font-bold">Company & Hiring Team</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3.5 p-3.5 bg-muted/40 rounded-xl border">
-                  <div className="w-12 h-12 rounded-full bg-primary/15 text-primary flex items-center justify-center font-bold text-lg">
-                    {job.companyName ? job.companyName[0].toUpperCase() : "T"}
-                  </div>
-                  <div>
-                    <h5 className="font-semibold text-sm">{job.companyName || "TalentStream"}</h5>
-                    <p className="text-xs text-muted-foreground">Verified Employer</p>
+            <Card className="gap-0 rounded-xl py-0">
+              <div className="p-6">
+                <h2 className="text-lg font-bold">Hiring Team</h2>
+                <div className="mt-4 flex items-center gap-3 rounded-lg border bg-muted/30 p-4">
+                  <Avatar size="lg" className="size-12">
+                    {employerImage ? (
+                      <AvatarImage src={employerImage} alt={hiringContact} />
+                    ) : null}
+                    <AvatarFallback className="bg-primary/10 text-base font-semibold text-primary">
+                      {hiringInitial}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">{hiringContact}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {employerName ? `Hiring Manager · ${companyName}` : "Verified Employer"}
+                    </p>
                   </div>
                 </div>
-              </CardContent>
+              </div>
             </Card>
           </aside>
         </div>

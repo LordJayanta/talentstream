@@ -53,11 +53,12 @@ export default function JobDescription({ markdown }: { markdown: string }) {
           ? "mt-5 mb-2 text-lg font-bold"
           : "mt-4 mb-1.5 text-base font-semibold";
       blocks.push(
-        React.createElement(
-          level === 1 ? "h2" : "h3",
-          { key: index, className },
-          renderInline(heading[2])
-        )
+        <h3
+          key={index}
+          className={className}
+        >
+          {renderInline(heading[2])}
+        </h3>
       );
       return;
     }
@@ -76,5 +77,5 @@ export default function JobDescription({ markdown }: { markdown: string }) {
 
   flushList();
 
-  return <div className="text-sm text-foreground/90">{blocks}</div>;
+  return <div className="text-[15px] text-foreground/90">{blocks}</div>;
 }

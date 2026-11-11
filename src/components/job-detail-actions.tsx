@@ -60,11 +60,17 @@ export default function JobDetailActions({
 
   if (isOwner) {
     return (
-      <div className="flex items-center gap-2">
-        <Link href={`/hr/job/${jobId}/edit`} className={buttonVariants({ variant: "outline" })}>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href={`/hr/job/${jobId}/edit`}
+          className={buttonVariants({ variant: "outline", className: "h-10 px-4" })}
+        >
           Edit Job
         </Link>
-        <Link href="/hr/job" className={buttonVariants({ variant: "default" })}>
+        <Link
+          href="/hr/job"
+          className={buttonVariants({ variant: "default", className: "h-10 px-4" })}
+        >
           Manage in HR Portal
         </Link>
       </div>
@@ -73,7 +79,10 @@ export default function JobDetailActions({
 
   if (!viewerRole) {
     return (
-      <Link href="/login" className={buttonVariants({ variant: "default" })}>
+      <Link
+        href="/login"
+        className={buttonVariants({ variant: "default", className: "h-10 px-4" })}
+      >
         <Zap size={16} className="mr-1.5" />
         Sign in to apply
       </Link>
@@ -86,26 +95,26 @@ export default function JobDetailActions({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="outline"
           onClick={handleSave}
-          className={isSaved ? "text-primary border-primary" : ""}
+          className={`h-10 px-4 ${isSaved ? "text-primary border-primary" : ""}`}
         >
           <Bookmark size={16} className={`mr-1.5 ${isSaved ? "fill-primary" : ""}`} />
-          {isSaved ? "Saved" : "Save"}
+          {isSaved ? "Saved" : "Save Job"}
         </Button>
 
         {hasApplied ? (
-          <Button disabled className="bg-emerald-600 text-white gap-2">
+          <Button disabled className="h-10 gap-2 bg-emerald-700 px-4 text-white disabled:opacity-100">
             <CheckCircle2 size={16} />
-            Application Submitted
+            Applied
           </Button>
         ) : (
           <Button
             onClick={() => setShowCoverLetter(!showCoverLetter)}
             disabled={isApplying}
-            className="gap-2"
+            className="h-10 gap-2 px-4"
           >
             <Zap size={16} />
             Apply Now
@@ -114,8 +123,8 @@ export default function JobDetailActions({
       </div>
 
       {showCoverLetter && !hasApplied && (
-        <div className="mt-2 p-4 border rounded-lg bg-card space-y-3">
-          <h5 className="font-semibold text-sm">Submit Your Application</h5>
+        <div className="mt-2 w-full space-y-3 rounded-lg border bg-card p-4 sm:w-80">
+          <h2 className="font-semibold text-sm">Submit Your Application</h2>
           <textarea
             className="w-full p-2.5 text-sm border rounded-md bg-background focus:ring-1 focus:ring-primary outline-hidden"
             rows={3}
