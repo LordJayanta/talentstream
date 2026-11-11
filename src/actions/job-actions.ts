@@ -156,7 +156,9 @@ export async function updateJobAction(id: string, formData: FormData) {
         department,
         employmentType,
         status,
-        companyBenefits: parseArrayOfStrings(companyBenefits),
+        ...(companyBenefits !== null && {
+          companyBenefits: parseArrayOfStrings(companyBenefits),
+        }),
         minSalary: minNum && !isNaN(minNum) ? minNum : null,
         maxSalary: maxNum && !isNaN(maxNum) ? maxNum : null,
         mustHaveSkills: parseArrayOfStrings(mustHaveSkills),
