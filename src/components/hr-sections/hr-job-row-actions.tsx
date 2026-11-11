@@ -104,7 +104,7 @@ export default function HRJobRowActions({
 
       <DropdownMenu>
         <DropdownMenuTrigger render={
-          <Button variant="ghost" size="icon-sm" disabled={isUpdating}>
+          <Button variant="ghost" size="icon-sm" disabled={isUpdating} aria-label="Job actions" title="Job actions">
             <EllipsisVertical size={16} className="text-muted-foreground" />
           </Button>
         } />

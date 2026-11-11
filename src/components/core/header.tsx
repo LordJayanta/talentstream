@@ -30,7 +30,7 @@ async function Header() {
               </Link>
             )}
             {session?.user?.role === "candidate" && (
-              <Link href="/candidate/profile" className="hover:text-foreground transition-colors flex items-center gap-1.5" aria-label="My Resume and Profile">
+              <Link href="/candidate/profile" className="hover:text-foreground transition-colors flex items-center gap-1.5" aria-label="My Resume & Profile">
                 <User size={16} />
                 <span className="hidden sm:inline">My Resume &amp; Profile</span>
               </Link>

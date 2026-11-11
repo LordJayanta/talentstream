@@ -196,9 +196,9 @@ export default function JobSearchFeed({ initialJobs = [], viewerRole }: JobSearc
             <Separator />
             <CardContent className="space-y-5 pt-4">
               <div className="space-y-2.5">
-                <h5 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
+                <h2 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
                   Employment Type
-                </h5>
+                </h2>
                 <div className="space-y-1.5 text-sm">
                   {[
                     { label: "Full Time", value: "FULL_TIME" },
@@ -226,9 +226,9 @@ export default function JobSearchFeed({ initialJobs = [], viewerRole }: JobSearc
               <Separator />
 
               <div className="space-y-2.5">
-                <h5 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
+                <h2 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
                   Salary Range (Annual)
-                </h5>
+                </h2>
                 <div className="flex gap-2">
                   <Input
                     type="number"

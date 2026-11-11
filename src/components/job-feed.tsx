@@ -70,13 +70,13 @@ export default function JobFeed({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-lg font-semibold flex items-center gap-2">
+        <h2 className="text-lg font-semibold flex items-center gap-2">
           Recommended Jobs{" "}
           <span className="text-sm text-muted-foreground font-normal">
             ({jobs.length} results)
           </span>
           {isPending && <Loader2 size={16} className="animate-spin text-primary" />}
-        </h4>
+        </h2>
 
         <DropdownMenu>
           <DropdownMenuTrigger render={
@@ -111,7 +111,7 @@ export default function JobFeed({
             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto text-muted-foreground">
               <Briefcase size={24} />
             </div>
-            <h5 className="font-semibold text-base">No jobs found</h5>
+            <h3 className="font-semibold text-base">No jobs found</h3>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">
               No jobs currently match your search criteria. Try removing some filters or check back later.
             </p>

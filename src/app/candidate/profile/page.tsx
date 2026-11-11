@@ -29,7 +29,7 @@ export default async function CandidateProfilePage() {
   return (
     <div className="min-h-screen bg-accent/30">
       <Header />
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Candidate Profile & Resume</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -153,7 +153,7 @@ export default async function CandidateProfilePage() {
             </Card>
           </aside>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

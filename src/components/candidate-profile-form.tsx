@@ -316,6 +316,7 @@ export default function CandidateProfileForm({
               key={fileInputKey}
               type="file"
               accept=".pdf,.doc,.docx"
+              aria-label="Upload resume"
               onChange={(e) => {
                 if (e.target.files?.[0]) {
                   setResumeFile(e.target.files[0]);

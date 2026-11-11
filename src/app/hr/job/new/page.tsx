@@ -275,13 +275,13 @@ export default function Page() {
           </JobInputCard>
 
 
-          <FieldGroup className='px-4 sm:px-6 py-4 bg-accent-foreground rounded-[16px]'>
+          <FieldGroup className='px-4 sm:px-6 py-4 bg-foreground text-background rounded-[16px]'>
             <Field orientation="horizontal" className='flex flex-col sm:flex-row sm:justify-between gap-4'>
-              <div className='flex gap-2 justify-center text-zinc-500'>
+              <div className='flex gap-2 justify-center text-background/70'>
                 <div>
                   <CloudBackup size={20} />
                 </div>
-                <FieldDescription className='text-base font-normal text-zinc-600'>Fields are saved when you publish.</FieldDescription>
+                <FieldDescription className='text-base font-normal text-background/80'>Fields are saved when you publish.</FieldDescription>
               </div>
               <div className='flex gap'>
                 <Button

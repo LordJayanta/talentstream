@@ -108,11 +108,12 @@ export default function HRCandidatePipeline({
       {/* Filters & Job Selector Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card p-4 rounded-xl border shadow-xs">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          <label htmlFor="pipeline-job-filter" className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <Filter size={15} />
             <span>Filter Job:</span>
-          </div>
+          </label>
           <select
+            id="pipeline-job-filter"
             value={selectedJob}
             onChange={(e) => setSelectedJob(e.target.value)}
             className="h-9 rounded-md border border-input bg-background px-3 text-xs font-medium focus:ring-1 focus:ring-primary outline-hidden"
@@ -320,7 +321,7 @@ export default function HRCandidatePipeline({
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-bold text-lg">{activeAppDetails.applicantName}</h3>
+                <h2 className="font-bold text-lg">{activeAppDetails.applicantName}</h2>
                 <p className="text-xs text-muted-foreground">
                   Applied for {activeAppDetails.jobTitle}
                 </p>

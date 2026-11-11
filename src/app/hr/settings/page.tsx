@@ -32,7 +32,7 @@ export default function HRSettingsPage() {
                   Candidates with a match score over 85% are highlighted in the pipeline.
                 </p>
               </div>
-              <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+              <span className="flex items-center gap-1 text-xs font-medium text-emerald-700">
                 <CheckCircle2 size={16} /> Active
               </span>
             </div>
@@ -44,7 +44,7 @@ export default function HRSettingsPage() {
                   Must-have skills carry 75% of the score and nice-to-have skills the remaining 25%.
                 </p>
               </div>
-              <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+              <span className="flex items-center gap-1 text-xs font-medium text-emerald-700">
                 <CheckCircle2 size={16} /> Active
               </span>
             </div>

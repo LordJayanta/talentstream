@@ -80,7 +80,7 @@ export default async function HRProfilePage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+              <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 p-3 rounded-lg border border-emerald-200">
                 <ShieldCheck size={16} />
                 <span>Verified Employer Role active on this account.</span>
               </div>
@@ -107,7 +107,7 @@ export default async function HRProfilePage() {
           <CardContent>
             <p className="text-xs text-muted-foreground">
               To change the company name shown on a public listing, edit that job from{" "}
-              <a href="/hr/job" className="text-primary hover:underline">
+              <a href="/hr/job" className="text-primary underline underline-offset-2 hover:text-primary/80">
                 Job Postings
               </a>
               .
