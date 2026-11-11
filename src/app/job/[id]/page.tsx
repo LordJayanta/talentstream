@@ -17,6 +17,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getJobByIdAction } from "@/actions/job-actions";
 import JobDetailActions from "@/components/job-detail-actions";
+import JobDescription from "@/components/job-description";
+import { formatEmploymentType, timeAgo } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{
@@ -35,15 +37,6 @@ function formatSalary(min?: number | null, max?: number | null) {
   return `Up to $${max! >= 1000 ? Math.round(max! / 1000) + "k" : max} / year`;
 }
 
-function timeAgo(dateInput: Date | string) {
-  const date = new Date(dateInput);
-  const now = new Date();
-  const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffInDays === 0) return "Posted today";
-  if (diffInDays === 1) return "Posted yesterday";
-  return `Posted ${diffInDays} days ago`;
-}
-
 export default async function Page({ params }: PageProps) {
   const { id } = await params;
   const result = await getJobByIdAction(id);
@@ -52,7 +45,7 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
-  const { job, hasApplied, isSaved, matchAnalysis, isOwner } = result;
+  const { job, hasApplied, isSaved, matchAnalysis, isOwner, viewerRole } = result;
 
   const mustHaveSkills = job.mustHaveSkills ?? [];
   const niceToHaveSkills = job.niceToHaveSkills ?? [];
@@ -104,6 +97,7 @@ export default async function Page({ params }: PageProps) {
                       initialApplied={hasApplied}
                       initialSaved={isSaved}
                       isOwner={isOwner}
+                      viewerRole={viewerRole}
                     />
                   </CardAction>
                 </div>
@@ -111,7 +105,7 @@ export default async function Page({ params }: PageProps) {
                 <div className="flex flex-wrap gap-2.5 pt-2 border-t">
                   <Badge variant="secondary" className="px-3 py-1 text-xs">
                     <BriefcaseBusiness size={14} className="mr-1.5" />
-                    {job.employmentType || "Full Time"}
+                    {formatEmploymentType(job.employmentType)}
                   </Badge>
                   <Badge variant="secondary" className="px-3 py-1 text-xs">
                     <BanknoteCheck size={14} className="mr-1.5" />
@@ -119,7 +113,7 @@ export default async function Page({ params }: PageProps) {
                   </Badge>
                   <Badge variant="secondary" className="px-3 py-1 text-xs">
                     <Clock size={14} className="mr-1.5" />
-                    {timeAgo(job.createdAt)}
+                    Posted {timeAgo(job.createdAt)}
                   </Badge>
                   {job.experience && (
                     <Badge variant="secondary" className="px-3 py-1 text-xs">
@@ -136,8 +130,8 @@ export default async function Page({ params }: PageProps) {
               <CardHeader>
                 <CardTitle className="text-lg font-bold">About the Role</CardTitle>
               </CardHeader>
-              <CardContent className="prose prose-zinc dark:prose-invert max-w-none text-foreground/90 whitespace-pre-line leading-relaxed text-sm">
-                {job.description}
+              <CardContent className="max-w-none">
+                <JobDescription markdown={job.description} />
               </CardContent>
             </Card>
 
@@ -214,7 +208,8 @@ export default async function Page({ params }: PageProps) {
           {/* Right Sidebar - Match Breakdown & Hiring Info */}
           <aside className="lg:col-span-4 space-y-6">
             {/* Match Breakdown Card */}
-            <Card className="rounded-xl shadow-xs border-primary/20">
+            {viewerRole === "candidate" && (
+              <Card className="rounded-xl shadow-xs border-primary/20">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -276,7 +271,8 @@ export default async function Page({ params }: PageProps) {
                   </span>
                 </Link>
               </CardFooter>
-            </Card>
+              </Card>
+            )}
 
             {/* Hiring Team Info */}
             <Card className="rounded-xl shadow-xs">

@@ -7,10 +7,11 @@ import JobProfile from "@/assets/JobUser.jpg";
 import { Badge } from "./ui/badge";
 import { BanknoteCheck, Bookmark, BriefcaseBusiness, Sparkles, Zap, CheckCircle2 } from "lucide-react";
 import { Separator } from "./ui/separator";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import Link from "next/link";
 import { useState } from "react";
 import { applyJobAction, toggleSaveJobAction } from "@/actions/candidate-actions";
+import { formatEmploymentType, timeAgo } from "@/lib/utils";
 
 export interface JobCardData {
   id: string;
@@ -26,11 +27,14 @@ export interface JobCardData {
   niceToHaveSkills?: string[] | null;
   matchScore?: number;
   matchLabel?: string;
+  hasApplied?: boolean;
+  isSaved?: boolean;
   createdAt: Date | string;
 }
 
 interface JobCardProps {
   job: JobCardData;
+  viewerRole?: string | null;
 }
 
 function formatSalary(min?: number | null, max?: number | null) {
@@ -44,21 +48,10 @@ function formatSalary(min?: number | null, max?: number | null) {
   return `Up to $${max! >= 1000 ? Math.round(max! / 1000) + "k" : max}`;
 }
 
-function timeAgo(dateInput: Date | string) {
-  const date = new Date(dateInput);
-  const now = new Date();
-  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-  if (diffInMinutes < 60) return `${Math.max(1, diffInMinutes)}m ago`;
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours}h ago`;
-  const diffInDays = Math.floor(diffInHours / 24);
-  return `${diffInDays}d ago`;
-}
-
-export default function JobCard({ job }: JobCardProps) {
+export default function JobCard({ job, viewerRole }: JobCardProps) {
   const [isApplying, setIsApplying] = useState(false);
-  const [hasApplied, setHasApplied] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [hasApplied, setHasApplied] = useState(job.hasApplied ?? false);
+  const [isSaved, setIsSaved] = useState(job.isSaved ?? false);
 
   const handleApply = async () => {
     setIsApplying(true);
@@ -90,7 +83,8 @@ export default function JobCard({ job }: JobCardProps) {
     }
   };
 
-  const match = job.matchScore ?? 80;
+  const match = job.matchScore ?? 0;
+  const isCandidate = viewerRole === "candidate";
 
   return (
     <Card className="rounded-md gap-4 hover:border-primary/50 transition-colors">
@@ -119,20 +113,24 @@ export default function JobCard({ job }: JobCardProps) {
           </div>
 
           <div className="flex flex-col items-center">
-            <div
-              className={`w-12 h-12 flex items-center justify-center rounded-md border-2 font-bold ${
-                match >= 85
-                  ? "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30"
-                  : match >= 70
-                  ? "border-primary text-primary bg-primary/10"
-                  : "border-amber-500 text-amber-600 bg-amber-50"
-              }`}
-            >
-              <span className="text-sm">{match}%</span>
-            </div>
-            <span className="text-[10px] font-bold text-muted-foreground tracking-wider mt-0.5">
-              MATCH
-            </span>
+            {isCandidate && job.matchScore != null && (
+              <>
+                <div
+                  className={`w-12 h-12 flex items-center justify-center rounded-md border-2 font-bold ${
+                    match >= 85
+                      ? "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30"
+                      : match >= 70
+                      ? "border-primary text-primary bg-primary/10"
+                      : "border-amber-500 text-amber-600 bg-amber-50"
+                  }`}
+                >
+                  <span className="text-sm">{match}%</span>
+                </div>
+                <span className="text-[10px] font-bold text-muted-foreground tracking-wider mt-0.5">
+                  MATCH
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -144,7 +142,7 @@ export default function JobCard({ job }: JobCardProps) {
           {job.employmentType && (
             <Badge variant="secondary">
               <BriefcaseBusiness size={14} className="mr-1" />
-              {job.employmentType}
+              {formatEmploymentType(job.employmentType)}
             </Badge>
           )}
           {job.department && (
@@ -172,31 +170,43 @@ export default function JobCard({ job }: JobCardProps) {
           </span>
 
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSave}
-              className={`h-9 px-3 ${isSaved ? "text-primary border-primary" : ""}`}
-              title={isSaved ? "Saved" : "Save job"}
-            >
-              <Bookmark size={16} className={isSaved ? "fill-primary" : ""} />
-            </Button>
+            {isCandidate ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSave}
+                  className={`h-9 px-3 ${isSaved ? "text-primary border-primary" : ""}`}
+                  title={isSaved ? "Saved" : "Save job"}
+                >
+                  <Bookmark size={16} className={isSaved ? "fill-primary" : ""} />
+                </Button>
 
-            {hasApplied ? (
-              <Button size="sm" disabled className="h-9 gap-1 bg-emerald-600 text-white">
-                <CheckCircle2 size={16} />
-                Applied
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                onClick={handleApply}
-                disabled={isApplying}
-                className="h-9 gap-1.5"
+                {hasApplied ? (
+                  <Button size="sm" disabled className="h-9 gap-1 bg-emerald-600 text-white">
+                    <CheckCircle2 size={16} />
+                    Applied
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={handleApply}
+                    disabled={isApplying}
+                    className="h-9 gap-1.5"
+                  >
+                    <Zap size={15} />
+                    <span>{isApplying ? "Applying..." : "One-Click Apply"}</span>
+                  </Button>
+                )}
+              </>
+            ) : viewerRole ? null : (
+              <Link
+                href="/login"
+                className={buttonVariants({ variant: "outline", size: "sm", className: "h-9 gap-1.5" })}
               >
                 <Zap size={15} />
-                <span>{isApplying ? "Applying..." : "One-Click Apply"}</span>
-              </Button>
+                Sign in to apply
+              </Link>
             )}
           </div>
         </div>

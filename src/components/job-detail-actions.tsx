@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Bookmark, CheckCircle2, Zap } from "lucide-react";
+import Link from "next/link";
 import { applyJobAction, toggleSaveJobAction } from "@/actions/candidate-actions";
 
 interface JobDetailActionsProps {
@@ -10,6 +11,7 @@ interface JobDetailActionsProps {
   initialApplied?: boolean;
   initialSaved?: boolean;
   isOwner?: boolean;
+  viewerRole?: string | null;
 }
 
 export default function JobDetailActions({
@@ -17,6 +19,7 @@ export default function JobDetailActions({
   initialApplied = false,
   initialSaved = false,
   isOwner = false,
+  viewerRole,
 }: JobDetailActionsProps) {
   const [hasApplied, setHasApplied] = useState(initialApplied);
   const [isSaved, setIsSaved] = useState(initialSaved);
@@ -58,14 +61,27 @@ export default function JobDetailActions({
   if (isOwner) {
     return (
       <div className="flex items-center gap-2">
-        <a href={`/hr/job/${jobId}/edit`}>
-          <Button variant="outline">Edit Job</Button>
-        </a>
-        <a href="/hr/job">
-          <Button variant="default">Manage in HR Portal</Button>
-        </a>
+        <Link href={`/hr/job/${jobId}/edit`} className={buttonVariants({ variant: "outline" })}>
+          Edit Job
+        </Link>
+        <Link href="/hr/job" className={buttonVariants({ variant: "default" })}>
+          Manage in HR Portal
+        </Link>
       </div>
     );
+  }
+
+  if (!viewerRole) {
+    return (
+      <Link href="/login" className={buttonVariants({ variant: "default" })}>
+        <Zap size={16} className="mr-1.5" />
+        Sign in to apply
+      </Link>
+    );
+  }
+
+  if (viewerRole !== "candidate") {
+    return null;
   }
 
   return (

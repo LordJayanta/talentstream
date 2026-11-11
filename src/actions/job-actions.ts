@@ -241,24 +241,51 @@ export async function getJobsAction(filters: JobFilterOptions = {}) {
       .orderBy(desc(jobsTable.createdAt));
 
     // Calculate match scores
+    const isCandidate = session?.user?.role === "candidate";
     const jobsWithScores = jobs.map((job) => {
-      const match = calculateMatchScore(
-        candidateSkills,
-        job.mustHaveSkills ?? [],
-        job.niceToHaveSkills ?? []
-      );
+      const match = isCandidate
+        ? calculateMatchScore(
+            candidateSkills,
+            job.mustHaveSkills ?? [],
+            job.niceToHaveSkills ?? []
+          )
+        : null;
       return {
         ...job,
-        matchScore: match.score,
-        matchLabel: match.label,
+        matchScore: match?.score,
+        matchLabel: match?.label,
       };
     });
 
     if (filters.sortBy === "match") {
-      jobsWithScores.sort((a, b) => b.matchScore - a.matchScore);
+      jobsWithScores.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
     }
 
-    return { success: true, jobs: jobsWithScores };
+    let appliedJobIds = new Set<string>();
+    let savedJobIds = new Set<string>();
+    if (session?.user?.id) {
+      const [applications, savedJobs] = await Promise.all([
+        db
+          .select({ jobId: jobApplicationsTable.jobId })
+          .from(jobApplicationsTable)
+          .where(eq(jobApplicationsTable.candidateId, session.user.id)),
+        db
+          .select({ jobId: savedJobsTable.jobId })
+          .from(savedJobsTable)
+          .where(eq(savedJobsTable.userId, session.user.id)),
+      ]);
+      appliedJobIds = new Set(applications.map((a) => a.jobId));
+      savedJobIds = new Set(savedJobs.map((s) => s.jobId));
+    }
+
+    return {
+      success: true,
+      jobs: jobsWithScores.map((job) => ({
+        ...job,
+        hasApplied: appliedJobIds.has(job.id),
+        isSaved: savedJobIds.has(job.id),
+      })),
+    };
   } catch (error) {
     console.error("Failed to get jobs:", error);
     return { success: false, jobs: [] };
@@ -333,6 +360,7 @@ export async function getJobByIdAction(id: string) {
       isSaved,
       matchAnalysis,
       isOwner: session?.user?.id === job.employerId,
+      viewerRole: (session?.user as { role?: string } | undefined)?.role ?? null,
     };
   } catch (error) {
     console.error("Failed to fetch job:", error);

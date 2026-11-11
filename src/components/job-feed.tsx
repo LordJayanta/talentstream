@@ -16,14 +16,18 @@ import { Briefcase, Loader2, Sparkles } from "lucide-react";
 interface JobFeedProps {
   initialJobs?: JobCardData[];
   initialFilters?: JobFilterOptions;
+  viewerRole?: string | null;
 }
 
 export default function JobFeed({
   initialJobs = [],
   initialFilters,
+  viewerRole,
 }: JobFeedProps) {
   const [jobs, setJobs] = useState<JobCardData[]>(initialJobs);
-  const [sortBy, setSortBy] = useState<"match" | "newest">("match");
+  const [sortBy, setSortBy] = useState<"match" | "newest">(
+    initialFilters?.sortBy ?? "newest"
+  );
   const [isPending, startTransition] = useTransition();
   const isFirstMount = useRef(true);
 
@@ -58,7 +62,6 @@ export default function JobFeed({
 
   const handleSortChange = (newSort: "match" | "newest") => {
     setSortBy(newSort);
-    loadJobs(newSort);
   };
 
   return (
@@ -94,7 +97,7 @@ export default function JobFeed({
 
       <section className="space-y-4">
         {jobs.length > 0 ? (
-          jobs.map((job) => <JobCard key={job.id} job={job} />)
+          jobs.map((job) => <JobCard key={job.id} job={job} viewerRole={viewerRole} />)
         ) : isPending ? (
           <div className="py-16 text-center border rounded-lg bg-card">
             <Loader2 className="animate-spin mx-auto text-primary mb-2" size={28} />

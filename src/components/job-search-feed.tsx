@@ -20,9 +20,10 @@ import { JobCardData } from "./job-card";
 
 interface JobSearchFeedProps {
   initialJobs?: JobCardData[];
+  viewerRole?: string | null;
 }
 
-export default function JobSearchFeed({ initialJobs = [] }: JobSearchFeedProps) {
+export default function JobSearchFeed({ initialJobs = [], viewerRole }: JobSearchFeedProps) {
   const [searchInput, setSearchInput] = useState("");
   const [locationInput, setLocationInput] = useState("");
   const [isRemote, setIsRemote] = useState(false);
@@ -245,63 +246,67 @@ export default function JobSearchFeed({ initialJobs = [] }: JobSearchFeedProps) 
           </Card>
 
           {/* Smart Match Banner */}
-          <Card className="rounded-xl bg-card border-primary/20 shadow-xs">
-            <CardHeader className="flex flex-row gap-2 items-center pb-2">
-              <Sparkles size={20} className="text-primary" />
-              <CardTitle className="text-sm font-bold">Smart Match Active</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Jobs are scored based on your resume and skills. Update your profile to see your exact match percentage.
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Link href="/candidate/profile" className="w-full">
-                <Button variant="outline" size="sm" className="w-full text-xs">
-                  Update Resume & Skills
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
+          {viewerRole === "candidate" && (
+            <Card className="rounded-xl bg-card border-primary/20 shadow-xs">
+              <CardHeader className="flex flex-row gap-2 items-center pb-2">
+                <Sparkles size={20} className="text-primary" />
+                <CardTitle className="text-sm font-bold">Smart Match Active</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Jobs are scored based on your resume and skills. Update your profile to see your exact match percentage.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Link href="/candidate/profile" className="w-full">
+                  <Button variant="outline" size="sm" className="w-full text-xs">
+                    Update Resume & Skills
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          )}
 
           {/* AI Auto-Apply Assistant */}
-          <Card className="rounded-xl bg-primary/5 border-primary/25 shadow-xs">
-            <CardHeader className="flex flex-row gap-2 items-center pb-2">
-              <Bot size={18} className="text-primary" />
-              <CardTitle className="text-sm font-bold">AI Auto-Apply</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Instantly submit your profile to all open roles where you have an 85%+ match score.
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Button
-                variant="default"
-                size="sm"
-                disabled={isAutoApplying}
-                onClick={handleAutoApply}
-                className="w-full text-xs gap-1.5"
-              >
-                {isAutoApplying ? (
-                  <>
-                    <Loader2 size={13} className="animate-spin" />
-                    Applying to Matches...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={13} />
-                    Auto-Apply Top Matches
-                  </>
-                )}
-              </Button>
-            </CardFooter>
-          </Card>
+          {viewerRole === "candidate" && (
+            <Card className="rounded-xl bg-primary/5 border-primary/25 shadow-xs">
+              <CardHeader className="flex flex-row gap-2 items-center pb-2">
+                <Bot size={18} className="text-primary" />
+                <CardTitle className="text-sm font-bold">AI Auto-Apply</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Instantly submit your profile to all open roles where you have an 85%+ match score.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  variant="default"
+                  size="sm"
+                  disabled={isAutoApplying}
+                  onClick={handleAutoApply}
+                  className="w-full text-xs gap-1.5"
+                >
+                  {isAutoApplying ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      Applying to Matches...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={13} />
+                      Auto-Apply Top Matches
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          )}
         </aside>
 
         {/* Job Listings Column */}
         <div className="col-span-1 md:col-span-3">
-          <JobFeed initialJobs={initialJobs} initialFilters={appliedFilters} />
+          <JobFeed initialJobs={initialJobs} initialFilters={appliedFilters} viewerRole={viewerRole} />
         </div>
       </section>
     </>
