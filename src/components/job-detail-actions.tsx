@@ -128,3 +128,4 @@ export default function JobDetailActions({
     </div>
   );
 }
+

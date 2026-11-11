@@ -25,3 +25,4 @@ export const candidateProfilesTable = pgTable("candidate_profiles", {
 
 export type InsertCandidateProfile = typeof candidateProfilesTable.$inferInsert;
 export type SelectCandidateProfile = typeof candidateProfilesTable.$inferSelect;
+

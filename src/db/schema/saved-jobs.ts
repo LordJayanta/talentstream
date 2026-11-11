@@ -22,3 +22,4 @@ export const savedJobsTable = pgTable(
 
 export type InsertSavedJob = typeof savedJobsTable.$inferInsert;
 export type SelectSavedJob = typeof savedJobsTable.$inferSelect;
+

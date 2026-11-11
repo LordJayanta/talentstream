@@ -307,3 +307,90 @@ export async function getCandidateSavedJobsAction() {
     return { success: false, savedJobs: [] };
   }
 }
+
+export async function autoApplyTopMatchesAction(minMatchScore: number = 85) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return { success: false, message: "Please log in as a candidate to use Auto-Apply." };
+  }
+
+  try {
+    const [profile] = await db
+      .select()
+      .from(candidateProfilesTable)
+      .where(eq(candidateProfilesTable.userId, session.user.id))
+      .limit(1);
+
+    if (!profile || !profile.skills || profile.skills.length === 0) {
+      return {
+        success: false,
+        message: "Please add skills to your candidate profile before using Auto-Apply.",
+      };
+    }
+
+    // 1. Fetch already applied job IDs
+    const existingApps = await db
+      .select({ jobId: jobApplicationsTable.jobId })
+      .from(jobApplicationsTable)
+      .where(eq(jobApplicationsTable.candidateId, session.user.id));
+
+    const appliedJobIds = new Set(existingApps.map((a) => a.jobId));
+
+    // 2. Fetch all active jobs
+    const activeJobs = await db
+      .select()
+      .from(jobsTable)
+      .where(eq(jobsTable.status, "active"));
+
+    // 3. Find unapplied jobs that match >= minMatchScore
+    const qualifyingJobs = activeJobs
+      .filter((job) => !appliedJobIds.has(job.id))
+      .map((job) => {
+        const match = calculateMatchScore(
+          profile.skills || [],
+          job.mustHaveSkills || [],
+          job.niceToHaveSkills || []
+        );
+        return { job, score: match.score };
+      })
+      .filter((item) => item.score >= minMatchScore);
+
+    if (qualifyingJobs.length === 0) {
+      return {
+        success: true,
+        appliedCount: 0,
+        message: `No new unapplied jobs found matching ${minMatchScore}% or higher.`,
+      };
+    }
+
+    // 4. Create applications
+    for (const item of qualifyingJobs) {
+      await db.insert(jobApplicationsTable).values({
+        jobId: item.job.id,
+        candidateId: session.user.id,
+        applicantName: session.user.name || "Candidate",
+        applicantEmail: session.user.email,
+        resumeUrl: profile.resumeUrl,
+        matchScore: item.score,
+        coverLetter: "Auto-applied via TalentStream Smart Match Assistant (90%+ fit).",
+        status: "pending",
+      });
+    }
+
+    revalidatePath("/candidate/profile");
+    revalidatePath("/");
+    return {
+      success: true,
+      appliedCount: qualifyingJobs.length,
+      message: `🎉 Successfully auto-applied to ${qualifyingJobs.length} top matching job${
+        qualifyingJobs.length > 1 ? "s" : ""
+      }!`,
+    };
+  } catch (error) {
+    console.error("Auto-apply failed:", error);
+    return { success: false, message: "Auto-apply process failed. Please try again." };
+  }
+}

@@ -18,3 +18,4 @@ echo "Ensuring talentstream_db database exists..."
 sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = 'talentstream_db'" | grep -q 1 || sudo -u postgres psql -c "CREATE DATABASE talentstream_db;"
 
 echo "Database ready on postgres://postgres:password123@localhost:5432/talentstream_db"
+
