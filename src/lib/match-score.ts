@@ -94,3 +94,74 @@ export function calculateMatchScore(
   };
 }
 
+export const COMMON_TECH_SKILLS = [
+  "React",
+  "Next.js",
+  "TypeScript",
+  "JavaScript",
+  "Node.js",
+  "Python",
+  "Go",
+  "Rust",
+  "Java",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "Redis",
+  "GraphQL",
+  "REST API",
+  "Docker",
+  "Kubernetes",
+  "AWS",
+  "GCP",
+  "Azure",
+  "Tailwind CSS",
+  "HTML5",
+  "CSS3",
+  "Git",
+  "Linux",
+  "CI/CD",
+  "Figma",
+  "Microservices",
+  "Drizzle ORM",
+  "Prisma",
+  "SQL",
+  "NoSQL",
+  "Kafka",
+  "RabbitMQ",
+  "Elasticsearch",
+  "OpenAI",
+  "FastAPI",
+  "Django",
+  "Flask",
+  "Express",
+  "Vue.js",
+  "Angular",
+  "Svelte",
+];
+
+/**
+ * Automatically extracts recognized technical and design skills from any freeform text
+ * (such as a resume, biography, or portfolio summary).
+ */
+export function extractSkillsFromText(text: string): string[] {
+  if (!text || typeof text !== "string") return [];
+  const lowerText = ` ${text.toLowerCase().replace(/[^a-z0-9+#.]/g, " ")} `;
+  const found: string[] = [];
+
+  for (const skill of COMMON_TECH_SKILLS) {
+    const escaped = skill
+      .toLowerCase()
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(?:^|\\s|[,;/-])${escaped}(?:$|\\s|[,;/-])`, "i");
+    if (regex.test(lowerText) || lowerText.includes(` ${skill.toLowerCase()} `)) {
+      if (!found.includes(skill)) {
+        found.push(skill);
+      }
+    }
+  }
+
+  return found;
+}
+
+

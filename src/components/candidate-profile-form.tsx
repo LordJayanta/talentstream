@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Upload, X, Check, Loader2 } from "lucide-react";
+import { FileText, Plus, Upload, X, Check, Loader2, Sparkles } from "lucide-react";
 import { updateCandidateProfileAction } from "@/actions/candidate-actions";
 import { SelectCandidateProfile } from "@/db/schema/candidates";
+import { extractSkillsFromText, COMMON_TECH_SKILLS } from "@/lib/match-score";
 
 interface CandidateProfileFormProps {
   user: { name?: string | null; email?: string | null } | null;
@@ -24,6 +25,7 @@ export default function CandidateProfileForm({
   const [location, setLocation] = useState(initialProfile?.location || "");
   const [experienceLevel, setExperienceLevel] = useState(initialProfile?.experienceLevel || "3-5 years");
   const [skills, setSkills] = useState<string[]>(initialProfile?.skills || ["React", "TypeScript", "Next.js"]);
+  const [resumeText, setResumeText] = useState(initialProfile?.resumeText || "");
   const [newSkill, setNewSkill] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,6 +44,23 @@ export default function CandidateProfileForm({
     setSkills(skills.filter((s) => s !== skillToRemove));
   };
 
+  const handleAutoDetectSkills = () => {
+    const combinedText = `${headline} ${bio} ${resumeText}`;
+    const detected = extractSkillsFromText(combinedText);
+    if (detected.length === 0) {
+      alert("No recognized skills found in your headline, bio, or resume text. Add keywords like React, Python, Docker, or AWS.");
+      return;
+    }
+    const newSkills = Array.from(new Set([...skills, ...detected]));
+    const addedCount = newSkills.length - skills.length;
+    setSkills(newSkills);
+    if (addedCount > 0) {
+      alert(`✨ Detected and added ${addedCount} skill(s): ${detected.filter((s) => !skills.includes(s)).join(", ")}`);
+    } else {
+      alert("All detected skills are already present in your profile list.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -54,6 +73,7 @@ export default function CandidateProfileForm({
       formData.append("location", location);
       formData.append("experienceLevel", experienceLevel);
       formData.append("skills", JSON.stringify(skills));
+      formData.append("resumeText", resumeText);
       if (resumeFile) {
         formData.append("resume", resumeFile);
       }
@@ -146,10 +166,23 @@ export default function CandidateProfileForm({
       {/* Skills Card */}
       <Card className="rounded-xl shadow-xs">
         <CardHeader>
-          <CardTitle className="text-lg font-bold">Skills & Technologies</CardTitle>
-          <CardDescription className="text-xs">
-            Add your core skills. The AI match engine scores all jobs based on matches against these skills.
-          </CardDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <CardTitle className="text-lg font-bold">Skills & Technologies</CardTitle>
+              <CardDescription className="text-xs">
+                Add your core skills. The AI match engine scores all jobs based on matches against these skills.
+              </CardDescription>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleAutoDetectSkills}
+              className="gap-1.5 text-xs text-primary border-primary/30 hover:bg-primary/10 shrink-0 self-start sm:self-auto"
+            >
+              <Sparkles size={13} className="text-primary" /> Auto-Detect from Bio
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -174,6 +207,27 @@ export default function CandidateProfileForm({
             >
               <Plus size={14} /> Add
             </Button>
+          </div>
+
+          {/* Quick Suggestions */}
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+              Popular Skill Suggestions (Click to Add):
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {COMMON_TECH_SKILLS.filter((s) => !skills.includes(s))
+                .slice(0, 10)
+                .map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => setSkills([...skills, suggestion])}
+                    className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-muted-foreground/40 hover:border-primary hover:text-primary transition-colors cursor-pointer"
+                  >
+                    + {suggestion}
+                  </button>
+                ))}
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2 pt-2">
@@ -202,12 +256,12 @@ export default function CandidateProfileForm({
         </CardContent>
       </Card>
 
-      {/* Resume File Upload Card */}
+      {/* Resume File & Text Card */}
       <Card className="rounded-xl shadow-xs">
         <CardHeader>
-          <CardTitle className="text-lg font-bold">Resume Document</CardTitle>
+          <CardTitle className="text-lg font-bold">Resume & Work Experience</CardTitle>
           <CardDescription className="text-xs">
-            Upload your resume file (PDF or DOCX). Employers will be able to review this when you apply.
+            Upload your resume file or paste your resume text. Your profile serves as a live resume for one-click job applications and AI scoring.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -229,14 +283,14 @@ export default function CandidateProfileForm({
                   </a>
                 </div>
               </div>
-              <Badge variant="outline" className="text-[10px]">Active Resume</Badge>
+              <Badge variant="outline" className="text-[10px]">Active Resume File</Badge>
             </div>
           )}
 
           <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/10 transition-colors">
             <Upload size={24} className="mx-auto text-muted-foreground mb-2" />
             <p className="text-xs font-semibold">
-              {resumeFile ? resumeFile.name : "Click to select a new resume file"}
+              {resumeFile ? resumeFile.name : "Click to select a new resume document"}
             </p>
             <p className="text-[11px] text-muted-foreground mt-0.5">
               Supports PDF, DOC, DOCX up to 10MB
@@ -251,6 +305,43 @@ export default function CandidateProfileForm({
               }}
               className="mt-3 text-xs mx-auto block file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
             />
+          </div>
+
+          <div className="pt-3 border-t space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-foreground">
+                Pasted Resume / Work Summary (Optional):
+              </label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const detected = extractSkillsFromText(resumeText);
+                  if (detected.length > 0) {
+                    const combined = Array.from(new Set([...skills, ...detected]));
+                    const addedCount = combined.length - skills.length;
+                    setSkills(combined);
+                    alert(`✨ Extracted ${detected.length} skills (${addedCount} new) from your resume text!`);
+                  } else {
+                    alert("No recognized skills found in the pasted text. Paste text mentioning your tech stack!");
+                  }
+                }}
+                className="h-6 text-xs text-primary gap-1 hover:bg-primary/10"
+              >
+                <Sparkles size={12} /> Extract Skills from Text
+              </Button>
+            </div>
+            <Textarea
+              placeholder="Paste your resume sections, work history, or tech stack here..."
+              rows={4}
+              value={resumeText}
+              onChange={(e) => setResumeText(e.target.value)}
+              className="text-xs font-mono"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Tip: Pasting your work history allows employers to review your qualifications directly in the candidate pipeline.
+            </p>
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-3 pt-2">
