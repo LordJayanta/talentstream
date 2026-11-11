@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Banknote, BrainCircuit, CloudBackup, Info } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
 import React, { useRef, useState } from 'react'
 
 const EditorClient = dynamic(
@@ -24,6 +25,7 @@ const EditorClient = dynamic(
 )
 
 export default function Page() {
+  const router = useRouter();
   const [title, setTitle] = useState<string>('');
   const [minSalary, setMinSalary] = useState<string>('');
   const [maxSalary, setMaxSalary] = useState<string>('');
@@ -105,6 +107,8 @@ export default function Page() {
     console.log("result: ", result);
     if (result.success) {
       alert(result.message);
+      router.push('/hr/job');
+      router.refresh();
     } else {
       alert(result.message);
     }
