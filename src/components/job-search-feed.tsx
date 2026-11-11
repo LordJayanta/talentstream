@@ -9,11 +9,12 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { MapPin, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Bot, Loader2, MapPin, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import JobFeed from "@/components/job-feed";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { JobFilterOptions } from "@/actions/job-actions";
+import { autoApplyTopMatchesAction } from "@/actions/candidate-actions";
 import Link from "next/link";
 import { JobCardData } from "./job-card";
 
@@ -28,8 +29,21 @@ export default function JobSearchFeed({ initialJobs = [] }: JobSearchFeedProps) 
   const [selectedType, setSelectedType] = useState<string>("");
   const [minSalary, setMinSalary] = useState<string>("");
   const [maxSalary, setMaxSalary] = useState<string>("");
+  const [isAutoApplying, setIsAutoApplying] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState<JobFilterOptions>({});
+
+  const handleAutoApply = async () => {
+    setIsAutoApplying(true);
+    try {
+      const res = await autoApplyTopMatchesAction(85);
+      alert(res.message);
+    } catch {
+      alert("Please sign in as a candidate to use Auto-Apply.");
+    } finally {
+      setIsAutoApplying(false);
+    }
+  };
 
   const handleSearch = () => {
     setAppliedFilters({
@@ -247,6 +261,40 @@ export default function JobSearchFeed({ initialJobs = [] }: JobSearchFeedProps) 
                   Update Resume & Skills
                 </Button>
               </Link>
+            </CardFooter>
+          </Card>
+
+          {/* AI Auto-Apply Assistant */}
+          <Card className="rounded-xl bg-primary/5 border-primary/25 shadow-xs">
+            <CardHeader className="flex flex-row gap-2 items-center pb-2">
+              <Bot size={18} className="text-primary" />
+              <CardTitle className="text-sm font-bold">AI Auto-Apply</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Instantly submit your profile to all open roles where you have an 85%+ match score.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button
+                variant="default"
+                size="sm"
+                disabled={isAutoApplying}
+                onClick={handleAutoApply}
+                className="w-full text-xs gap-1.5"
+              >
+                {isAutoApplying ? (
+                  <>
+                    <Loader2 size={13} className="animate-spin" />
+                    Applying to Matches...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={13} />
+                    Auto-Apply Top Matches
+                  </>
+                )}
+              </Button>
             </CardFooter>
           </Card>
         </aside>

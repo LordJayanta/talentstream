@@ -1,17 +1,16 @@
-import { Bell, Settings } from 'lucide-react'
+'use client';
+
+import { Bell, Settings } from 'lucide-react';
 import AvatarOption from '../core/avatar-option';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { useSession } from '@/lib/auth-client';
 
 type Props = {
   title: string;
-}
+};
 
-async function HRHeader({ title }: Props) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  
+export default function HRHeader({ title }: Props) {
+  const { data: session } = useSession();
+
   return (
     <div className='h-16 w-full'>
       <header className='absolute top-0 h-16 w-full flex justify-between items-center px-6 border-b border-accent-foreground/25 bg-background'>
@@ -30,7 +29,5 @@ async function HRHeader({ title }: Props) {
         )}
       </header>
     </div>
-  )
+  );
 }
-
-export default HRHeader

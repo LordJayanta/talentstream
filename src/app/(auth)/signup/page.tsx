@@ -65,7 +65,7 @@ export default function Page() {
       console.log(data);
 
       if (data?.user) {
-        if (data.user?.role === 'employer') router.push("/hr/dashboard")
+        if ((data.user as { role?: string })?.role === 'employer') router.push("/hr/dashboard")
         else router.push("/");
         router.refresh();
       }
