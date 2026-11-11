@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 import FieldInput from '@/components/core/field-input'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field'
 import Link from 'next/link'
 import React from 'react'
@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation'
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().regex(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, "Please enter a valid email address"),
+  email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8, "Please confirm your password"),
   role: z.enum(["candidate", "employer"]),
@@ -46,14 +46,9 @@ export default function Page() {
     { label: "I am an Employer", value: "employer" }
   ]
 
-  const onSubmit = async (data: SignupFormData) => {
-    console.log("Valid data:", data);
-    const apiData = data;
-
-    delete (apiData as Partial<SignupFormData>).confirmPassword;  // delete confirm passoword
-
-    // NOTE: Since the user cannot create an account without checking the box, the account's createdAt timestamp already proves when they accepted the terms.
-    delete (apiData as Partial<SignupFormData>).acceptTerms;  // delete acceptTerms 
+  const onSubmit = async ({ confirmPassword, acceptTerms, ...apiData }: SignupFormData) => {
+    void confirmPassword;
+    void acceptTerms;
 
     setIsLoading(true);
 
@@ -61,8 +56,6 @@ export default function Page() {
       const { data, error } = await authClient.signUp.email(apiData);
 
       if (error) throw error;
-
-      console.log(data);
 
       if (data?.user) {
         if ((data.user as { role?: string })?.role === 'employer') router.push("/hr/dashboard")
@@ -117,7 +110,7 @@ export default function Page() {
                   name='role'
                   control={control}
                   render={({ field, fieldState }) => <FieldSelect
-                    label='Employment Type'
+                    label='I am a'
                     placeholder="e.g. I'm Job Seeker"
                     className='col-span-6'
                     items={userType}
@@ -163,11 +156,9 @@ export default function Page() {
                   </Button>
                 </Field>
                 <Field className='col-span-6'>
-                  <Button variant={'link'} type='submit'>
-                    <Link href={'/login'}>
-                      I have an account. Sign In
-                    </Link>
-                  </Button>
+                  <Link href={'/login'} className={buttonVariants({ variant: 'link' })}>
+                    I have an account. Sign In
+                  </Link>
                 </Field>
               </FieldGroup>
             </FieldSet>

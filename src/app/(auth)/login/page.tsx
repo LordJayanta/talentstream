@@ -3,7 +3,7 @@
 import { z } from 'zod'
 import FieldCheckBox from '@/components/core/field-check-box'
 import FieldInput from '@/components/core/field-input'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field'
 import Link from 'next/link'
 import { Controller, useForm } from 'react-hook-form'
@@ -31,19 +31,14 @@ export default function Page() {
   const { register, handleSubmit, control, formState: { errors } } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      rememberMe: false
+      rememberMe: true
     }
   })
 
-  const onSubmit = async (data: LoginInput) => {
-    console.log("Valid data:", data);
-    const apiData = data;
-    delete (apiData as Partial<LoginInput>).rememberMe;
-
+  const onSubmit = async ({ rememberMe, ...apiData }: LoginInput) => {
     setIsLoading(true);
     try {
-      const { data, error } = await authClient.signIn.email(apiData);
-      console.log(data);
+      const { data, error } = await authClient.signIn.email({ ...apiData, rememberMe });
       if (error) throw error;
 
 
@@ -97,7 +92,7 @@ export default function Page() {
                   {...register('password')}
                   error={errors.password?.message}
                 />
-                <div className='col-span-6 flex items-center justify-between'>
+                <div className='col-span-6 flex items-center'>
                   <Controller
                     control={control}
                     name='rememberMe'
@@ -108,11 +103,6 @@ export default function Page() {
                       error={fieldState.error?.message}
                     />}
                   />
-                  <Button variant={'link'}>
-                    <Link href={'/'}>
-                      Forgot password?
-                    </Link>
-                  </Button>
                 </div>
                 <Field className='col-span-6'>
                   <Button type='submit' variant={'default'} size={'lg'} className={'w-full flex gap-1'}>
@@ -121,11 +111,9 @@ export default function Page() {
                   </Button>
                 </Field>
                 <Field className='col-span-6'>
-                  <Button variant={'link'}>
-                    <Link href={'/singup'}>
-                      I don&apos;t have an account. Create Account
-                    </Link>
-                  </Button>
+                  <Link href={'/signup'} className={buttonVariants({ variant: 'link' })}>
+                    I don&apos;t have an account. Create Account
+                  </Link>
                 </Field>
               </FieldGroup>
             </FieldSet>
